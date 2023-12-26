@@ -1,0 +1,1 @@
+docker build . -t farizink/dea-bot-discord --platform=linux/amd64

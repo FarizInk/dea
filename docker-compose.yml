@@ -1,0 +1,4 @@
+name: dea
+services:
+  discord:
+    image: farizink/dea-bot-discord

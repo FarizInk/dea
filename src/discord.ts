@@ -8,8 +8,7 @@ import {
   PartialMessage,
 } from "discord.js";
 import log from "./log.js";
-import { codeBlock } from "discord.js";
-import env from "./env.js";
+import { understandMsg } from "./dea.js";
 
 const client = new Client({
   intents: [
@@ -34,34 +33,7 @@ client.once("ready", (client) => {
   setInterval(setPresence, ms("1h"));
 });
 
-client.on("messageCreate", async (message: Message) => {
-  const msgHttp : Array<string> = message.toString().match(/\bhttp?:\/\/\S+/gi) ?? []
-  const msgHttps : Array<string> = message.toString().match(/\bhttps?:\/\/\S+/gi) ?? []
-  const links = msgHttp.concat(msgHttps);
-
-  if (links.length >= 1) {
-    message.reply(`Found ${links.length} Link`)
-    console.log(`\nid: ${message.id} \nurl: ${message.url} \nlinks: ${links.join(', ')}`);
-    
-    // store link
-  }
-
-  if (message.toString() === "guildId") {
-    message.reply(
-      message.guildId ? codeBlock(message.guildId) : "Gatau bang 🤷‍♀️",
-    );
-  } else if (message.toString() === "channelId") {
-    message.reply(
-      message.channelId ? codeBlock(message.channelId) : "Gatau bang 🤷‍♀️",
-    );
-  } else if (message.toString() === "myId") {
-    message.reply(
-      message.author.id ? codeBlock(message.author.id) : "Gatau bang 🤷‍♀️",
-    );
-  } else if (message.toString() === "serverCount") {
-    message.reply(`Watching ${client.guilds.cache.size} servers`);
-  }
-});
+client.on("messageCreate", async (message: Message) => understandMsg(message, client));
 
 client.on(
   "messageUpdate",
