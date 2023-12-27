@@ -49,7 +49,7 @@ export const getLinks = async (message: Message) => {
     const embededLinks = createEmbed(links)
     embededLinks.forEach((link) => message.reply(link))
 
-    message.reply(`Ada ${links.length} link 😋, saya catat ya kak 😊`);
+    message.react('👍');
     await sendToPocketBase(message, links);
   }
 };
