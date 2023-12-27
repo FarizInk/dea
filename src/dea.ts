@@ -16,8 +16,20 @@ export const setupPB = async () => {
   };
 };
 
+const validateGuild = (id: string|null) => {
+  if (env.GUILD_ID !== '' && id !== null) {
+    const result = id === env.GUILD_ID
+    // NOTE: temp add env mode in order to handle file log too big
+    if (!result && env.MODE === 'debug') log.warn(`Guild ID: ${id} not allowed`)
+    return result;
+  }
+
+  return true;
+};
+
 export const understandMsg = (message: Message, client: Client) => {
-  if (message.author.id !== client.application?.id) {
+  const validate = validateGuild(message.guildId ?? null);
+  if (message.author.id !== client.application?.id && validate) {
     if (message.toString() === "guildId") {
       message.reply(
         message.guildId ? codeBlock(message.guildId) : "Gatau bang 🤷‍♀️",
@@ -31,7 +43,7 @@ export const understandMsg = (message: Message, client: Client) => {
         message.author.id ? codeBlock(message.author.id) : "Gatau bang 🤷‍♀️",
       );
     } else if (message.toString() === "serverCount") {
-      message.reply(`Watching ${client.guilds.cache.size} servers`);
+      message.reply(`Watching ${client.guilds.cache.size} Guild`);
     } else {
       getLinks(message);
     }
@@ -46,10 +58,9 @@ export const getLinks = async (message: Message) => {
   const links = msgHttp.concat(msgHttps);
 
   if (links.length >= 1) {
-    const embededLinks = createEmbed(links)
-    embededLinks.forEach((link) => message.reply(link))
+    const embededLinks = createEmbed(links);
+    embededLinks.forEach((link) => message.reply(link));
 
-    message.react('👍');
     await sendToPocketBase(message, links);
   }
 };
@@ -97,21 +108,26 @@ export const sendToPocketBase = async (
   };
 
   await pb.collection("devsign_links").create(data);
+  message.react("👍");
 };
 
 export const createEmbed = (links: Array<string>) => {
   let embededLinks: Array<string> = [];
   links.forEach((link) => {
-    if (!link.includes('ddinstagram.com') && link.includes('instagram.com')) {
-      embededLinks.push(link.replace('instagram.com', 'ddinstagram.com'))
-    } else if (!link.includes('fxtwitter.com') && link.includes('twitter.com')) {
-      embededLinks.push(link.replace('twitter.com', 'fxtwitter.com'))
-    } else if (!link.includes('fxtwitter.com') && link.includes('x.com')) {
-      embededLinks.push(link.replace('x.com', 'fxtwitter.com'))
-    } else if (!link.includes('www.vt.tiktok.com') && link.includes('www.tiktok.com')) {
-      embededLinks.push(link.replace('www.tiktok.com', 'vm.dstn.to'))
-    } else if (!link.includes('vt.tiktok.com') && link.includes('tiktok.com')) {
-      embededLinks.push(link.replace('tiktok.com', 'vm.dstn.to'))
+    if (!link.includes("ddinstagram.com") && link.includes("instagram.com")) {
+      embededLinks.push(link.replace("instagram.com", "ddinstagram.com"));
+    } else if (
+      !link.includes("fxtwitter.com") && link.includes("twitter.com")
+    ) {
+      embededLinks.push(link.replace("twitter.com", "fxtwitter.com"));
+    } else if (!link.includes("fxtwitter.com") && link.includes("x.com")) {
+      embededLinks.push(link.replace("x.com", "fxtwitter.com"));
+    } else if (
+      !link.includes("www.vt.tiktok.com") && link.includes("www.tiktok.com")
+    ) {
+      embededLinks.push(link.replace("www.tiktok.com", "vm.dstn.to"));
+    } else if (!link.includes("vt.tiktok.com") && link.includes("tiktok.com")) {
+      embededLinks.push(link.replace("tiktok.com", "vm.dstn.to"));
     }
   });
 

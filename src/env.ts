@@ -8,12 +8,14 @@ const {
   POCKETBASE_URL,
   POCKETBASE_USER_EMAIL,
   POCKETBASE_USER_PASSWORD,
+  MODE,
 } = process.env;
 
 if (!DISCORD_TOKEN) throw new Error('DISCORD_TOKEN is not set');
 if (!POCKETBASE_URL) throw new Error('POCKETBASE_URL is not set');
 if (!POCKETBASE_USER_EMAIL) throw new Error('POCKETBASE_USER_EMAIL is not set');
 if (!POCKETBASE_USER_PASSWORD) throw new Error('POCKETBASE_USER_PASSWORD is not set');
+if (!MODE) throw new Error('MODE is not set');
 
 type Env = {
   DISCORD_TOKEN: string;
@@ -21,6 +23,7 @@ type Env = {
   POCKETBASE_URL: string;
   POCKETBASE_USER_EMAIL: string;
   POCKETBASE_USER_PASSWORD: string;
+  MODE: string;
 }
 
 const env: Env = {
@@ -29,6 +32,7 @@ const env: Env = {
   POCKETBASE_URL,
   POCKETBASE_USER_EMAIL,
   POCKETBASE_USER_PASSWORD,
+  MODE,
 };
 
 export default env;
