@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm install
 
 # Copy the app code
-COPY src/ ./src/
+COPY bot/ ./bot/
 COPY .env .
 COPY tsconfig.json .
 
