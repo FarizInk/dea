@@ -1,10 +1,12 @@
 {
-	"compilerOptions": {
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"outDir": "./dist",
-		"target": "ES2022",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist-bot",
+    "target": "ES2022",
     "strict": true,
-	},
-	"include": ["./src/**/*"],
+  },
+  "include": [
+    "bot/**/*"
+  ],
 }

@@ -44,6 +44,16 @@ export const understandMsg = (message: Message, client: Client) => {
       );
     } else if (message.toString() === "serverCount") {
       message.reply(`Watching ${client.guilds.cache.size} Guild`);
+    } else if (message.toString().toLowerCase() === "k") {
+      message.reply(message.toString().toLowerCase() == message.toString() ? 'o' : 'O');
+    } else if (/\bdea\b/.test(message.toString().toLowerCase())) {
+      const word = 'dea'
+      const regex = /\p{Extended_Pictographic}/ug
+      const msg = message.toString().toLowerCase()
+      const emoji = msg.slice(msg.indexOf(word) + word.length).trim().split(' ')[0]
+      if (regex.test(emoji)) {
+        message.react(emoji)
+      }
     } else {
       getLinks(message);
     }
@@ -89,10 +99,14 @@ export const sendToPocketBase = async (
 ) => {
   const { pocketbase: pb } = await setupPB();
 
-  const tags = [
+  let tags = [
     await getTag("automated"),
     await getTag(`channel_${message.channelId}`),
   ];
+
+  if (env.MODE === 'debug') {
+    tags.push(await getTag(env.MODE))
+  }
 
   const data = {
     "user_id": null,
