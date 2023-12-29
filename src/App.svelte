@@ -4,6 +4,7 @@
   import { inject } from '@vercel/analytics';
 
   inject({ mode: import.meta.env.MODE })
+  console.log(`MODE: ${import.meta.env.MODE}`)
 </script>
 
 <Router {routes} />
