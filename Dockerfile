@@ -15,7 +15,7 @@ COPY .env .
 COPY tsconfig.json .
 
 # Build the project
-RUN npm run build
+RUN npm run build-bot
 
 # Run the application
 CMD [ "node", "dist-bot/index.js" ]
