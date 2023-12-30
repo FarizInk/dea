@@ -1,3 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center font-medium rounded shadow-sm transition duration-150 ease-in-out border-black border-2 p-2.5 bg-neo-violet-200 hover:bg-neo-violet-300 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-neo-violet-300
+    }
+
+    .input {
+        @apply border-black border-2 p-2.5 focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] focus:bg-neo-violet-200 active:shadow-[2px_2px_0px_rgba(0,0,0,1)] rounded-md focus:placeholder-indigo-50
+    }
+}
+
+body {
+    font-family: 'Space Mono', monospace;
+}
