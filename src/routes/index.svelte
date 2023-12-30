@@ -39,9 +39,10 @@
   const logout = () => {
     pb.authStore.clear();
     user = null;
-    messages = []
+    messages = [];
   };
 
+  let query = null;
   let messages = [];
   let perPage = 10;
   let currentPage = 1;
@@ -59,16 +60,13 @@
       .getList(currentPage, perPage, {
         sort: "-message_updated_at",
         expand: "tags",
+        filter: query ? `links ~ "${query}" || message ~ "${query}" || sender ~ "${query}"` : null
       });
 
     messages = payload.items;
     totalFetchData = payload.totalItems;
     totalPage = payload.totalPages;
     currentPage = payload.page;
-  };
-
-  const search = () => {
-    return null;
   };
 
   const formatDate = (datetime: string) => {
@@ -92,10 +90,13 @@
   <h1 class="text-center text-4xl"><span class="font-bold">Dea</span>vsign</h1>
   <div class="flex items-center justify-center gap-2 mt-10">
     {#if user}
-      <input
-        class="input flex-1"
-        placeholder="type query and hit enter to search 👌"
-      />
+      <form on:submit|preventDefault={fetchData} class="flex-1">
+        <input
+          class="input w-full"
+          placeholder="type query and hit enter to search 👌"
+          bind:value={query}
+        />
+      </form>
       <button
         type="button"
         class="btn bg-neo-red-200 hover:bg-neo-red-400 active:bg-neo-red-400"
