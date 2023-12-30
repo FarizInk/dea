@@ -121,7 +121,7 @@ export const sendToPocketBase = async (
     "tags": tags.map((tag) => tag.id),
   };
 
-  await pb.collection("devsign_discord_links").create(data);
+  await pb.collection("devsign_discord_messages").create(data);
   message.react("👍");
 };
 

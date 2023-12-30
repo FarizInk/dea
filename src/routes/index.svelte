@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { Message } from "discord.js";
-
   import PocketBase from "pocketbase";
   import { onMount } from "svelte";
 
@@ -42,7 +40,7 @@
     messages = [];
   };
 
-  let query = null;
+  let query:undefined|string;
   let messages = [];
   let perPage = 10;
   let currentPage = 1;
@@ -56,7 +54,7 @@
     }
 
     const payload = await pb
-      .collection("devsign_discord_links")
+      .collection("devsign_discord_messages")
       .getList(currentPage, perPage, {
         sort: "-message_updated_at",
         expand: "tags",
