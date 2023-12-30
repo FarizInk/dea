@@ -3,9 +3,9 @@ import log from './log.js';
 import client from './discord.js';
 
 
-process.on('SIGTERM', () => console.log('Received SIGTERM'));
+process.on('SIGTERM', () => log.info('Received SIGTERM'));
 
-process.on('SIGINT', () => console.log('Received SIGINT'));
+process.on('SIGINT', () => log.info('Received SIGINT'));
 
 process.on('unhandledRejection', (error) => {
   if (error instanceof Error) log.warn(`Uncaught ${error.name}`);
