@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import log from "./log.js";
 import { understandMsg } from "./dea.js";
+import * as fs from 'fs';
 
 const client = new Client({
   intents: [
@@ -22,9 +23,11 @@ const client = new Client({
 client.once("ready", (client) => {
   log.success("Connected to Discord as", client.user.tag);
   function setPresence() {
+    const quotes = JSON.parse(fs.readFileSync('./quotes.json', { encoding: 'utf8' }));
+    const selectedQuote = quotes[Math.floor(Math.random() * (quotes.length - 1))];
     client.user.setActivity({
       name: `Your Bacod`,
-      state: "this is quote",
+      state: selectedQuote,
       type: ActivityType.Listening,
     });
   }
