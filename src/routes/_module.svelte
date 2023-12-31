@@ -50,7 +50,7 @@
   $: fetchData($params);
 
   const fetchData = async (params) => {
-    const queryFilter = params?.q ?? query;
+    const queryFilter = params?.q ?? query ?? null;
     const page = params?.page ?? currentPage ?? 1;
     const PBQuery = queryFilter + page;
     if (lastPBQuery !== PBQuery) {
@@ -135,7 +135,7 @@
   {#if user}
     <div class="mt-6">
       {#if isLoadingList}
-        ini loading
+        Loading...
       {:else if messages.length >= 1}
         <ul class="space-y-5">
           {#each messages as message}
@@ -200,7 +200,7 @@
           {/each}
         </ul>
       {:else}
-        tidak ada data.
+        no messages found.
       {/if}
 
       <div class="flex items-center justify-between flex-wrap gap-2 mt-6">
