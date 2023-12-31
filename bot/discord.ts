@@ -25,7 +25,6 @@ client.once("ready", (client) => {
     client.user.setActivity({
       name: `Your Bacod`,
       state: "this is quote",
-      url: "https://fariz.dev",
       type: ActivityType.Listening,
     });
   }

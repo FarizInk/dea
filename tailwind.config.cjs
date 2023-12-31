@@ -31,5 +31,8 @@ module.exports = {
       }
     },
   },
-  plugins: [require('tailwindcss-debug-screens')],
+  plugins: [
+    require('tailwindcss-debug-screens'),
+    require('@tailwindcss/line-clamp'),
+  ],
 };

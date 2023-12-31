@@ -4,7 +4,7 @@ import env from "./env.js";
 import log from "./log.js";
 
 export const setupPB = async () => {
-  const pocketbase = new PocketBase(env.POCKETBASE_URL);
+  const pocketbase = new PocketBase(env.VITE_POCKETBASE_URL);
   const auth = await pocketbase.admins.authWithPassword(
     env.POCKETBASE_USER_EMAIL,
     env.POCKETBASE_USER_PASSWORD,
@@ -29,6 +29,7 @@ const validateGuild = (id: string|null) => {
 
 export const understandMsg = (message: Message, client: Client) => {
   const validate = validateGuild(message.guildId ?? null);
+  // NOTE: if link have / include word "dea", the link not be saved.
   if (message.author.id !== client.application?.id && validate) {
     if (message.toString() === "guildId") {
       message.reply(
@@ -128,7 +129,7 @@ export const sendToPocketBase = async (
 export const createEmbed = (links: Array<string>) => {
   let embededLinks: Array<string> = [];
   links.forEach((link) => {
-    if (!link.includes("ddinstagram.com") && link.includes("instagram.com")) {
+    if (!link.includes("ddinstagram.com") && (link.includes("instagram.com/p/") || link.includes("instagram.com/reels/"))) {
       embededLinks.push(link.replace("instagram.com", "ddinstagram.com"));
     } else if (
       !link.includes("fxtwitter.com") && link.includes("twitter.com")
