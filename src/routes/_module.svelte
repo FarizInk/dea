@@ -28,7 +28,7 @@
 
     if (pb.authStore.isValid) {
       user = pb.authStore.model;
-      await fetchData();
+      await fetchData($params);
     }
   });
 
@@ -37,7 +37,7 @@
 
     if (pb.authStore.isValid) {
       user = pb.authStore.model;
-      await fetchData();
+      await fetchData($params);
     }
   };
 
@@ -50,8 +50,9 @@
   $: fetchData($params);
 
   const fetchData = async (params) => {
-    const queryFilter = params?.q ?? query ?? null;
-    const page = params?.page ?? currentPage ?? 1;
+    query = params?.q ?? null
+    const queryFilter = params?.q === undefined ? null : params?.q;
+    const page = params?.page === undefined ? 1 : params?.page;
     const PBQuery = queryFilter + page;
     if (lastPBQuery !== PBQuery) {
       lastPBQuery = PBQuery;
@@ -85,18 +86,6 @@
       }),
     );
     return data;
-  };
-
-  const nextPageUrl = () => {
-    return $url("/", { ...params, page: currentPage + 1 });
-  };
-
-  const prevPageUrl = () => {
-    if (currentPage > 1) {
-      return $url("/", { ...params, page: currentPage - 1 });
-    } else {
-      return $url("/", { ...params, page: 1 });
-    }
   };
 </script>
 
