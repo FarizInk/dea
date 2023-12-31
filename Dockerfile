@@ -13,6 +13,7 @@ RUN npm install
 COPY bot/ ./bot/
 COPY .env .
 COPY tsconfig.json .
+COPY quotes.json .
 
 # Build the project
 RUN npm run build-bot
