@@ -41,7 +41,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tailwindcss/line-clamp": "^0.4.4",
     "@types/ms": "^0.7.34",
     "@vercel/analytics": "^1.1.1",
     "discord.js": "^14.14.1",
