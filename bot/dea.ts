@@ -129,7 +129,7 @@ export const sendToPocketBase = async (
 export const createEmbed = (links: Array<string>) => {
   let embededLinks: Array<string> = [];
   links.forEach((link) => {
-    if (!link.includes("ddinstagram.com") && (link.includes("instagram.com/p/") || link.includes("instagram.com/reels/"))) {
+    if (!link.includes("ddinstagram.com") && (link.includes("instagram.com/p/") || link.includes("instagram.com/reels/") || link.includes("instagram.com/reel/"))) {
       embededLinks.push(link.replace("instagram.com", "ddinstagram.com"));
     } else if (
       !link.includes("fxtwitter.com") && link.includes("twitter.com")
