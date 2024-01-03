@@ -64,7 +64,7 @@
           sort: "-message_updated_at",
           expand: "tags",
           filter: queryFilter
-            ? `tags.name ?~ "${queryFilter}" || id = "${queryFilter}" || links ~ "${queryFilter}" || message ~ "${queryFilter}" || sender ~ "${queryFilter}"`
+            ? `tags.name ?~ "${queryFilter}" || id = "${queryFilter}" || raw_links ~ "${queryFilter}" || message ~ "${queryFilter}" || sender ~ "${queryFilter}"`
             : null,
         });
 
@@ -165,7 +165,7 @@
                   </div>
 
                   <div class="flex gap-1 flex-wrap">
-                    {#each generatePreviewLinks(message.links) as link}
+                    {#each generatePreviewLinks(message.raw_links) as link}
                       <a
                         href={link.url}
                         class="text-xs relative truncate hover:underline btn p-1 border-0.5 block"

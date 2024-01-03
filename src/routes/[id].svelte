@@ -88,7 +88,7 @@
         <div class="mt-3 text-sm mx-1">
           <p class="font-bold">Links:</p>
           <ul class="list-disc mx-4 space-y-1">
-            {#each [...new Set(data.links)] ?? [] as link}
+            {#each [...new Set(data.raw_links)] ?? [] as link}
             <li>
               <a href={link} class="hover:underline" target="_blank">
                 {link}
