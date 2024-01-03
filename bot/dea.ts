@@ -111,11 +111,13 @@ export const sendToPocketBase = async (
 
   const data = {
     "user_id": null,
-    "message_id": message.id,
+    "discord_user_id": message.author.id ?? null,
+    "guild_id": message.guildId ?? null,
+    "message_id": message.id ?? null,
     "message": message.toString(),
     "message_created_at": new Date(message.createdTimestamp),
     "message_updated_at": new Date(message.createdTimestamp),
-    "links": links,
+    "raw_links": links,
     "message_log": null,
     "url": message.url,
     "sender": message.author.username,
