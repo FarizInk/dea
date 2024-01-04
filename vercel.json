@@ -4,6 +4,22 @@
     {
       "path": "/api/cron",
       "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron",
+      "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron",
+      "schedule": "0 5 * * *"
     }
   ],
   "routes": [
