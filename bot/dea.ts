@@ -122,6 +122,7 @@ export const sendToPocketBase = async (
     "url": message.url,
     "sender": message.author.username,
     "tags": tags.map((tag) => tag.id),
+    "is_bot": message.author.bot,
   };
 
   await pb.collection("devsign_discord_messages").create(data);
