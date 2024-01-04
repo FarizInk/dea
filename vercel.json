@@ -8,9 +8,5 @@
       "src": "/.*",
       "dest": "/index.html"
     }
-  ],
-  "crons": [{
-    "path": "/api/cron",
-    "schedule": "*/20 * * * *"
-  }]
+  ]
 }
