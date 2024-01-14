@@ -1,15 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ms from "ms";
-import {
-  ActivityType,
-  Client,
-  GatewayIntentBits,
-  Message,
-  PartialMessage,
-} from "discord.js";
+import { ActivityType, Client, GatewayIntentBits, Message } from "discord.js";
+import type { PartialMessage } from "discord.js";
 import log from "./log.js";
 import { understandMsg } from "./dea.js";
-import * as fs from 'fs';
+import * as fs from "fs";
 
 const client = new Client({
   intents: [
@@ -23,8 +18,11 @@ const client = new Client({
 client.once("ready", (client) => {
   log.success("Connected to Discord as", client.user.tag);
   function setPresence() {
-    const quotes = JSON.parse(fs.readFileSync('./quotes.json', { encoding: 'utf8' }));
-    const selectedQuote = quotes[Math.floor(Math.random() * (quotes.length - 1))];
+    const quotes = JSON.parse(
+      fs.readFileSync("./quotes.json", { encoding: "utf8" }),
+    );
+    const selectedQuote =
+      quotes[Math.floor(Math.random() * (quotes.length - 1))];
     client.user.setActivity({
       name: `https://dea.fariz.dev`,
       state: selectedQuote,
@@ -35,7 +33,10 @@ client.once("ready", (client) => {
   setInterval(setPresence, ms("1h"));
 });
 
-client.on("messageCreate", async (message: Message) => understandMsg(message, client));
+client.on(
+  "messageCreate",
+  async (message: Message) => understandMsg(message, client),
+);
 
 client.on(
   "messageUpdate",

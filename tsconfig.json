@@ -16,10 +16,5 @@
   },
   "include": [
     "bot/**/*",
-    "src/**/*.d.ts",
-    "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.svelte",
-    ".routify/**.js"
   ],
 }
