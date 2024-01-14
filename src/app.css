@@ -1,10 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer components {
+/* @layer components {
     .btn {
         @apply inline-flex items-center justify-center font-medium rounded shadow-sm border-black border-2 p-2.5 bg-neo-violet-200 hover:bg-neo-violet-300 hover:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:bg-neo-violet-300
     }
@@ -16,4 +10,166 @@
 
 body {
     font-family: 'Space Mono', monospace;
+} */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Colors */
+        --background: 0 0% 100%;
+        --foreground: 0 0% 9%;
+        --foreground-alt: 0 0% 32%;
+        --muted: 240 5% 96%;
+        --muted-foreground: 0 0% 9% / 0.4;
+        --border: 240 6% 10%;
+        --border-input: 240 6% 10% / 0.17;
+        --border-card: 240 6% 10% / 0.1;
+        --dark: 240 6% 10%;
+        --dark-10: 240 6% 10% / 0.1;
+        --dark-40: 240 6% 10% / 0.4;
+        --dark-04: 240 6% 10% / 0.04;
+        --accent: 204 94% 94%;
+        --accent-foreground: 204 80% 16%;
+        --destructive: 347 77% 50%;
+
+        /* black */
+        --constrast: 0 0% 0%;
+
+        /* Shadows */
+        --shadow-mini: 0px 1px 0px 1px rgba(0, 0, 0, 0.04);
+        --shadow-mini-inset: 0px 1px 0px 0px rgba(0, 0, 0, 0.04) inset;
+        --shadow-popover: 0px 7px 12px 3px hsla(var(--dark-10));
+        --shadow-kbd: 0px 2px 0px 0px rgba(0, 0, 0, 0.07);
+        --shadow-btn: 0px 1px 0px 1px rgba(0, 0, 0, 0.03);
+        --shadow-card: 0px 2px 0px 1px rgba(0, 0, 0, 0.04);
+    }
+
+    .dark {
+        /* Colors */
+        --background: 0 0% 9%;
+        --foreground: 0 0% 100%;
+        --foreground-alt: 0 0% 100%;
+        --muted: 240 4% 16%;
+        --muted-foreground: 0 0% 100% / 0.4;
+        --border: 0 0% 96%;
+        --border-input: 0 0% 96% / 0.17;
+        --border-card: 0 0% 96% / 0.1;
+        --dark: 0 0% 96%;
+        --dark-40: 0 0% 96% / 0.4;
+        --dark-10: 0 0% 96% / 0.1;
+        --dark-04: 0 0% 96% / 0.04;
+        --accent: 204 80% 16%;
+        --accent-foreground: 204 94% 94%;
+        --destructive: 350 89% 60%;
+
+        /* white */
+        --constrast: 0 0% 100%;
+
+        /* Shadows */
+        --shadow-popover: 0px 7px 12px 3px rbga(255, 255, 255, 0.2);
+        --shadow-kbd: 0px 2px 0px 0px rgba(255, 255, 255, 0.07);
+        --shadow-btn: 0px 1px 0px 1px rgba(255, 255, 255, 0.03);
+        --shadow-card: 0px 2px 0px 1px rgba(255, 255, 255, 0.04);
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+        font-variation-settings: normal;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+
+    /* Mobile tap highlight */
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-tap-highlight-color */
+    html {
+        -webkit-tap-highlight-color: rgba(128, 128, 128, 0.5);
+    }
+
+    /* === Scrollbars === */
+
+    ::-webkit-scrollbar {
+        @apply w-2;
+        @apply h-2;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply !bg-transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-card-lg !bg-dark-10;
+    }
+
+    ::-webkit-scrollbar-corner {
+        background: rgba(0, 0, 0, 0);
+    }
+
+    /* Firefox */
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color#browser_compatibility */
+
+    html {
+        scrollbar-color: var(--bg-muted);
+    }
+
+    .antialised {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+@layer utilities {
+    .step {
+        counter-increment: step;
+    }
+
+    .step:before {
+        @apply absolute inline-flex h-9 w-9 items-center justify-center rounded-full border-4 border-background bg-muted text-center -indent-px font-mono text-base font-medium;
+        @apply ml-[-50px] mt-[-4px];
+        content: counter(step);
+    }
+}
+
+@layer components {
+    *:not(body) {
+        outline: none !important;
+        
+        /* NOTE: try to read this commented code */
+        /* &:focus-visible {
+            @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+        } */
+    }
+
+    .custom-link {
+        @apply relative font-mono font-semibold z-10 underline underline-offset-2 decoration-dashed decoration-sky-500 hover:text-foreground/80 
+    }
+
+    .link {
+        @apply inline-flex items-center gap-1 rounded-sm font-medium underline underline-offset-4 hover:text-foreground/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
 }

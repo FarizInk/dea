@@ -80,11 +80,11 @@ const getTag = async (slug: string) => {
   const { pocketbase: pb } = await setupPB();
   let data = null;
   try {
-    data = await pb.collection("devsign_discord_tags").getFirstListItem(
+    data = await pb.collection("dea_tags").getFirstListItem(
       `slug="${slug}"`,
     );
   } catch (error) {
-    data = await pb.collection("devsign_discord_tags").create({
+    data = await pb.collection("dea_tags").create({
       "user_id": null,
       "name": slug,
       "slug": slug,
@@ -125,7 +125,7 @@ export const sendToPocketBase = async (
     "is_bot": message.author.bot,
   };
 
-  await pb.collection("devsign_discord_messages").create(data);
+  await pb.collection("dea_messages").create(data);
   message.react("👍");
 };
 

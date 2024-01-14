@@ -1,12 +1,25 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "./dist-bot",
-    "target": "ES2022",
     "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*", "./bot/*"],
+    },
+    "target": "ES2022",
+    "types": [
+      "vite/client",
+    ]
   },
   "include": [
-    "bot/**/*"
+    "bot/**/*",
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.svelte",
+    ".routify/**.js"
   ],
 }

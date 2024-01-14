@@ -26,9 +26,9 @@ client.once("ready", (client) => {
     const quotes = JSON.parse(fs.readFileSync('./quotes.json', { encoding: 'utf8' }));
     const selectedQuote = quotes[Math.floor(Math.random() * (quotes.length - 1))];
     client.user.setActivity({
-      name: `Your Bacod`,
+      name: `https://dea.fariz.dev`,
       state: selectedQuote,
-      type: ActivityType.Listening,
+      type: ActivityType.Playing,
     });
   }
   setPresence();
