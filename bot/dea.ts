@@ -16,7 +16,7 @@ export const setupPB = async () => {
   };
 };
 
-const validateGuild = (id: string|null) => {
+const validateGuild = (id: string | null) => {
   if (env.GUILD_ID !== '' && id !== null) {
     const result = id === env.GUILD_ID
     // NOTE: temp add env mode in order to handle file log too big
@@ -69,10 +69,12 @@ export const getLinks = async (message: Message) => {
   const links = msgHttp.concat(msgHttps);
 
   if (links.length >= 1) {
-    const embededLinks = createEmbed(links);
-    embededLinks.forEach((link) => message.reply(link));
-
     await sendToPocketBase(message, links);
+  }
+
+  const embededLinks = (message.toString().match(/<([^<>]+)>/g) ?? []).filter((text: string) => text.match(/\bhttp?:\/\/\S+/gi) ?? false)
+  if (embededLinks) {
+    createEmbed(embededLinks).forEach((link) => message.reply(link));
   }
 };
 
