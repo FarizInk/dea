@@ -11,8 +11,8 @@ COPY package.json .
 RUN npm install
 
 # Move source files
-COPY src ./src
-COPY tsconfig.json   .
+COPY bot ./bot
+COPY tsconfig.json  .
 
 # Build project
 RUN npm run build

@@ -1,7 +1,8 @@
-version: "3"
 services:
   app:
     build: .
     command: node build/main.js
     environment:
       - BOT_TOKEN=${BOT_TOKEN}
+      - COBALT_API_URL=${COBALT_API_URL}
+      - DEBUG=${DEBUG}

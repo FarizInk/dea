@@ -2,6 +2,10 @@ import { dirname, importx } from "@discordx/importer";
 import type { Interaction, Message } from "discord.js";
 import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
+import "dotenv/config"
+import { getSocialMediaInfo } from "./assistantMsgListener.js";
+
+const botToken = process.env.BOT_TOKEN ?? null
 
 export const bot = new Client({
   // To use only guild command
@@ -18,7 +22,7 @@ export const bot = new Client({
   ],
 
   // Debug logs are disabled in silent mode
-  silent: false,
+  silent: process.env.DEBUG ? process.env.DEBUG.toLowerCase() === 'false' : true,
 
   // Configuration for @SimpleCommand
   simpleCommand: {
@@ -26,9 +30,12 @@ export const bot = new Client({
   },
 });
 
-bot.once("ready", () => {
+bot.once("ready", async () => {
+  await bot.clearApplicationCommands();
+  
   // Make sure all guilds are cached
-  // await bot.guilds.fetch();
+  await bot.guilds.fetch();
+
 
   // Synchronize applications commands with Discord
   void bot.initApplicationCommands();
@@ -36,10 +43,9 @@ bot.once("ready", () => {
   // To clear all guild commands, uncomment this line,
   // This is useful when moving from guild commands to global commands
   // It must only be executed once
-  //
-  //  await bot.clearApplicationCommands(
-  //    ...bot.guilds.cache.map((g) => g.id)
-  //  );
+  // await bot.clearApplicationCommands(
+  //   ...bot.guilds.cache.map((g) => g.id)
+  // );
 
   console.log("Bot started");
 });
@@ -49,6 +55,7 @@ bot.on("interactionCreate", (interaction: Interaction) => {
 });
 
 bot.on("messageCreate", (message: Message) => {
+  getSocialMediaInfo(message);
   void bot.executeCommand(message);
 });
 
@@ -61,12 +68,12 @@ async function run() {
   await importx(`${dirname(import.meta.url)}/{events,commands}/**/*.{ts,js}`);
 
   // Let's start the bot
-  if (!process.env.BOT_TOKEN) {
+  if (!botToken) {
     throw Error("Could not find BOT_TOKEN in your environment");
   }
 
   // Log in with your bot token
-  await bot.login(process.env.BOT_TOKEN);
+  await bot.login(botToken);
 }
 
 void run();
