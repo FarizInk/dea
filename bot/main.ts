@@ -68,8 +68,8 @@ bot.on("interactionCreate", (interaction: Interaction) => {
   bot.executeInteraction(interaction);
 });
 
-bot.on("messageCreate", (message: Message) => {
-  getSocialMediaInfo(message);
+bot.on("messageCreate", async (message: Message) => {
+  await getSocialMediaInfo(message, bot);
   void bot.executeCommand(message);
 });
 

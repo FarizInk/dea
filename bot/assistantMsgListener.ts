@@ -5,8 +5,9 @@ import * as fs from 'fs';
 import * as stream from 'stream';
 import { promisify } from 'util';
 import axios from 'axios'
+import type { Client } from "discordx";
 
-const downloadFile = async (name:string, url:string) => {
+const downloadFile = async (name: string, url: string) => {
     const finishedDownload = promisify(stream.finished);
 
     const extensions = ['.png', '.jpg', '.jpeg', '.mp4', '.webp']
@@ -19,7 +20,7 @@ const downloadFile = async (name:string, url:string) => {
         if (contentType) extension = mimes[contentType] ? '.' + mimes[contentType] : null
     }
 
-    
+
     const filename = `${name}${extension}`
     const filePath = './cache/' + filename
     const writer = fs.createWriteStream(filePath)
@@ -64,12 +65,17 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
     return [];
 }
 
-export const getSocialMediaInfo = (message: Message) => {
+export const getSocialMediaInfo = async (message: Message, bot: Client) => {
     const msgHttp: Array<string> =
         message.toString().match(/\bhttp?:\/\/\S+/gi) ?? [];
     const msgHttps: Array<string> =
         message.toString().match(/\bhttps?:\/\/\S+/gi) ?? [];
     const links = msgHttp.concat(msgHttps);
+
+    let startMsg: Message|null = null
+    if (links.length && message.author.id !== bot.user?.id) {
+        startMsg = await message.reply('processing link...')
+    }
 
     links.forEach(async (link) => {
         const files = await cobaltGetMedia(link)
@@ -81,16 +87,19 @@ export const getSocialMediaInfo = (message: Message) => {
             return;
         }
 
-        if (link.includes("instagram.com/p/") || link.includes("instagram.com/reels/") || link.includes("instagram.com/reel/")) {
+        if (["instagram.com/p/", "instagram.com/reels/", "instagram.com/reel/"].some((a) => link.includes(a))) {
             embedLink = link.replace("instagram.com/", "ddinstagram.com/");
             linkType = 'ig'
-        } else if (link.includes("twitter.com/")) {
+        } else if (["https://twitter.com/", "http://twitter.com/"].some((a) => link.includes(a))) {
             embedLink = link.replace("twitter.com/", "vxtwitter.com/");
             linkType = 'twitter'
-        } else if (link.includes("https://x.com/") || link.includes("http://x.com/")) {
+        } else if (["http://x.com/", "https://x.com/"].some((a) => link.includes(a))) {
             embedLink = link.replace("x.com/", "vxtwitter.com/")
             linkType = 'twitter'
-        } else if (link.includes("www.tiktok.com/") || link.includes("https://tiktok.com/") || link.includes("http://tiktok.com/")) {
+        } else if (["https://tiktok.com/", "http://tiktok.com/"].some((a) => link.includes(a))) {
+            embedLink = link.replace("tiktok.com/", "vm.dstn.to/");
+            linkType = 'tiktok'
+        } else if (["https://www.tiktok.com/", "http://www.tiktok.com/"].some((a) => link.includes(a))) {
             embedLink = link.replace("www.tiktok.com/", "vm.dstn.to/");
             linkType = 'tiktok'
         }
@@ -109,9 +118,13 @@ export const getSocialMediaInfo = (message: Message) => {
             message.suppressEmbeds(true)
 
             files.forEach((a) => fs.unlink(a, () => null))
+            if (startMsg) startMsg.delete();
         } else if (embedLink) {
             await message.reply(embedLink)
             message.suppressEmbeds(true)
+            if (startMsg) startMsg.delete();
+        } else if (startMsg) {
+            startMsg.delete();
         }
     })
 };

@@ -1,22 +1,13 @@
-import type { CommandInteraction, Message } from "discord.js";
-import type { SimpleCommandMessage } from "discordx";
+import type { CommandInteraction } from "discord.js";
 import {
   Discord,
-  SimpleCommand,
-  SimpleCommandOption,
-  SimpleCommandOptionType,
   Slash,
 } from "discordx";
 
 @Discord()
 export class Example {
-  @SimpleCommand()
-  async ping(command: SimpleCommandMessage): Promise<void> {
-    const member = command.message.member;
-    if (member) {
-      await command.message.reply(`👋 ${member.toString()}`);
-    } else {
-      await command.message.reply("👋 hello");
-    }
+  @Slash({ name: "ping", description: 'ping! the bot' })
+  async simplePing(command: CommandInteraction): Promise<void> {
+    await command.reply('pong!')
   }
 }
