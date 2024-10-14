@@ -84,10 +84,10 @@ const getSocialMediaInfo = async (message: Message, link: string) => {
     } else if (["http://x.com/", "https://x.com/"].some((a) => link.includes(a))) {
         embedLink = link.replace("x.com/", "vxtwitter.com/")
         linkType = 'twitter'
-    } else if (["https://tiktok.com/", "http://tiktok.com/"].some((a) => link.includes(a))) {
+    } else if (link.includes('//tiktok.com/') && ["/video", "/photo"].some((a) => link.includes(a))) {
         embedLink = link.replace("tiktok.com/", "vm.dstn.to/");
         linkType = 'tiktok'
-    } else if (["https://www.tiktok.com/", "http://www.tiktok.com/"].some((a) => link.includes(a))) {
+    } else if (link.includes('//www.tiktok.com/') && ["/video", "/photo"].some((a) => link.includes(a))) {
         embedLink = link.replace("www.tiktok.com/", "vm.dstn.to/");
         linkType = 'tiktok'
     }
