@@ -3,7 +3,7 @@ import type { Interaction, Message } from "discord.js";
 import { ActivityType, IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 import "dotenv/config"
-import { getSocialMediaInfo } from "./assistantMsgListener.js";
+import { handlerLink } from "./dea.js";
 import ms from "ms";
 
 const botToken = process.env.BOT_TOKEN ?? null
@@ -69,7 +69,7 @@ bot.on("interactionCreate", (interaction: Interaction) => {
 });
 
 bot.on("messageCreate", async (message: Message) => {
-  await getSocialMediaInfo(message, bot);
+  await handlerLink(message, bot);
   void bot.executeCommand(message);
 });
 
