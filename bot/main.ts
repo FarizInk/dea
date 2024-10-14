@@ -1,9 +1,10 @@
 import { dirname, importx } from "@discordx/importer";
 import type { Interaction, Message } from "discord.js";
-import { IntentsBitField } from "discord.js";
+import { ActivityType, IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 import "dotenv/config"
 import { getSocialMediaInfo } from "./assistantMsgListener.js";
+import ms from "ms";
 
 const botToken = process.env.BOT_TOKEN ?? null
 
@@ -26,13 +27,13 @@ export const bot = new Client({
 
   // Configuration for @SimpleCommand
   simpleCommand: {
-    prefix: "!",
+    prefix: ["~", "~!"],
   },
 });
 
 bot.once("ready", async () => {
   await bot.clearApplicationCommands();
-  
+
   // Make sure all guilds are cached
   await bot.guilds.fetch();
 
@@ -46,6 +47,19 @@ bot.once("ready", async () => {
   // await bot.clearApplicationCommands(
   //   ...bot.guilds.cache.map((g) => g.id)
   // );
+
+  function setPresence() {
+    bot.user?.setPresence({
+      activities: [{
+        name: `with raspi-kun`,
+        type: ActivityType.Playing,
+        url: 'https://dea.fariz.dev',
+      }],
+      status: 'idle',
+    })
+  }
+  setPresence();
+  setInterval(setPresence, ms("1h"));
 
   console.log("Bot started");
 });
