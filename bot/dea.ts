@@ -116,6 +116,8 @@ const isScrappedMedia = (link: string) => {
     return [
         '//instagram.com/p',
         '//instagram.com/reel',
+        '//www.instagram.com/p',
+        '//www.instagram.com/reel',
         '//twitter.com/',
         '//x.com/',
         '//tiktok.com/',
