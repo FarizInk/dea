@@ -50,7 +50,7 @@ const downloadFile = async (name: string, url: string) => {
     
         return filePath
     } catch (error) {
-        console.log(error)
+        console.log(`error download file: ${url}`)
         return null
     }
 }
