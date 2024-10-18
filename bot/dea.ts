@@ -7,6 +7,22 @@ import { promisify } from 'util';
 import axios from 'axios'
 import type { Client } from "discordx";
 
+const removeReactions = async (bot: Client, message: Message) => {
+    const botId = bot.user?.id
+
+    if (botId) {
+        const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(botId));
+
+        try {
+            for (const reaction of userReactions.values()) {
+                await reaction.users.remove(botId);
+            }
+        } catch (error) {
+            console.error('Failed to remove reactions.');
+        }
+    }
+}
+
 const downloadFile = async (name: string, url: string) => {
     const finishedDownload = promisify(stream.finished);
 
@@ -24,14 +40,19 @@ const downloadFile = async (name: string, url: string) => {
     const filename = `${name}${extension}`
     const filePath = './cache/' + filename
     const writer = fs.createWriteStream(filePath)
-    const response = await axios.get(url, {
-        responseType: "stream",
-    });
-
-    response.data.pipe(writer)
-    await finishedDownload(writer);
-
-    return filePath
+    try {
+        const response = await axios.get(url, {
+            responseType: "stream",
+        });
+    
+        response.data.pipe(writer)
+        await finishedDownload(writer);
+    
+        return filePath
+    } catch (error) {
+        console.log(error)
+        return null
+    }
 }
 
 const cobaltGetMedia = async (url: string): Promise<string[]> => {
@@ -136,22 +157,6 @@ const isScrappedMedia = (link: string) => {
         '//www.facebook.com/',
         // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
     ].some((a) => link.includes(a))
-}
-
-const removeReactions = async (bot: Client, message: Message) => {
-    const botId = bot.user?.id
-
-    if (botId) {
-        const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(botId));
-
-        try {
-            for (const reaction of userReactions.values()) {
-                await reaction.users.remove(botId);
-            }
-        } catch (error) {
-            console.error('Failed to remove reactions.');
-        }
-    }
 }
 
 export const handlerLink = async (message: Message, bot: Client) => {
