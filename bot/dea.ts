@@ -75,13 +75,16 @@ const getSocialMediaInfo = async (message: Message, link: string) => {
         return;
     }
 
-    if (["instagram.com/p/", "instagram.com/reels/", "instagram.com/reel/"].some((a) => link.includes(a))) {
+    if (link.includes('//instagram.com/') && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
         embedLink = link.replace("instagram.com/", "ddinstagram.com/");
         linkType = 'ig'
-    } else if (["https://twitter.com/", "http://twitter.com/"].some((a) => link.includes(a))) {
+    } else if (link.includes('//www.instagram.com/') && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
+        embedLink = link.replace("www.instagram.com/", "ddinstagram.com/");
+        linkType = 'ig'
+    } else if (["//twitter.com/"].some((a) => link.includes(a))) {
         embedLink = link.replace("twitter.com/", "vxtwitter.com/");
         linkType = 'twitter'
-    } else if (["http://x.com/", "https://x.com/"].some((a) => link.includes(a))) {
+    } else if (["//x.com/"].some((a) => link.includes(a))) {
         embedLink = link.replace("x.com/", "vxtwitter.com/")
         linkType = 'twitter'
     } else if (link.includes('//tiktok.com/') && ["/video", "/photo"].some((a) => link.includes(a))) {
@@ -114,15 +117,19 @@ const getSocialMediaInfo = async (message: Message, link: string) => {
 
 const isScrappedMedia = (link: string) => {
     return [
+        // instagram
         '//instagram.com/p',
-        '//instagram.com/reel',
+        '//instagram.com/reel', // include reel & reels
         '//www.instagram.com/p',
-        '//www.instagram.com/reel',
+        '//www.instagram.com/reel', // include reel & reels
+        // twitter or x
         '//twitter.com/',
         '//x.com/',
+        // tiktok
         '//tiktok.com/',
         '//www.tiktok.com/',
         '//vt.tiktok.com/',
+        // twitch
         '//twitch.tv/',
         // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
     ].some((a) => link.includes(a))
