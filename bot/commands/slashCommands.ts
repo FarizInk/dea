@@ -13,6 +13,6 @@ export class Example {
 
   @Slash({ name: "info", description: 'information about Dea' })
   async infoCommand(command: CommandInteraction): Promise<void> {
-    await command.reply(`Supported Media: ${inlineCode('Instagram')}, ${inlineCode('X / Twitter')}, ${inlineCode('Tiktok')}, ${inlineCode('Twitch')}`)
+    await command.reply(`Supported Media: ${inlineCode('Instagram')}, ${inlineCode('X / Twitter')}, ${inlineCode('Tiktok')}, ${inlineCode('Twitch')}, ${inlineCode('Facebook')}`)
   }
 }

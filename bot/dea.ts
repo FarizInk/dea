@@ -131,6 +131,9 @@ const isScrappedMedia = (link: string) => {
         '//vt.tiktok.com/',
         // twitch
         '//twitch.tv/',
+        // facebook
+        '//facebook.com/',
+        '//www.facebook.com/',
         // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
     ].some((a) => link.includes(a))
 }
