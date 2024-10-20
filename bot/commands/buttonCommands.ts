@@ -1,4 +1,4 @@
-import { Message, type ButtonInteraction } from "discord.js";
+import { Message, MessagePayload, MessagePayloadOption, type ButtonInteraction } from "discord.js";
 import {
   Discord,
   ButtonComponent
@@ -12,29 +12,38 @@ export class Example {
     const links = getLinks(message.content)
     await message.react('🫰');
 
-    let result = []
+    let result: Array<string|MessagePayload|MessagePayloadOption> = []
     for (let i = 0; i < links.length; i++) {
       const link = links[i];
-      if (isScrappedMedia(link)) result.push(await getSocialMediaInfo(message, link))
+      if (isScrappedMedia(link)) {
+        const data = await getSocialMediaInfo(link)
+        if (data) result.push(data) 
+      }
     }
 
 
     if (result.length >= 2) {
-      result.forEach(async (data) => await message.reply(data))
+      // @ts-ignore
+      result.forEach(async (data: string|MessagePayload|MessagePayloadOption) => await message.reply(data))
       await interaction.message.delete()
     } else if (result.length === 1) {
       await interaction.message.edit({
+        // @ts-ignore
         ...result[0],
         content: null,
         components: [],
       })
     } else {
-      await interaction.message.edit('No media Found 😔')
+      await interaction.message.edit({
+        content: 'No media Found 😔',
+        components: [],
+      })
       await interaction.message.delete()
     }
 
     result?.forEach((data) => {
       if (!data) return
+      // @ts-ignore
       data.files?.forEach((file) => {
         fs.unlink(file?.attachment ?? null, () => null)
       })

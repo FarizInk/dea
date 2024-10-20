@@ -70,6 +70,14 @@ bot.on("interactionCreate", (interaction: Interaction) => {
 
 bot.on("messageCreate", async (message: Message) => {
   await handlerLink(message, bot);
+  if (bot.user && message.mentions.has(bot.user.id)) {
+    const repliedId = message?.reference?.messageId ?? null
+    if (repliedId) {
+      const msg = await message.channel.messages.fetch(repliedId);
+      await handlerLink(msg, bot);
+    }
+  }
+
   void bot.executeCommand(message);
 });
 

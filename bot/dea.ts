@@ -1,4 +1,4 @@
-import { Message } from "discord.js"
+import { Message, MessagePayload, MessagePayloadOption } from "discord.js"
 import 'dotenv/config'
 import { mimes } from './mimes.js';
 import * as fs from 'fs';
@@ -6,7 +6,7 @@ import * as stream from 'stream';
 import { promisify } from 'util';
 import axios from 'axios'
 import type { Client } from "discordx";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export const removeReactions = async (userId: string, message: Message) => {
     const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(userId));
@@ -83,14 +83,14 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
     return [];
 }
 
-export const getSocialMediaInfo = async (message: Message, link: string) => {
+export const getSocialMediaInfo = async (link: string): Promise<string | MessagePayload | MessagePayloadOption | null> => {
     const files = await cobaltGetMedia(link)
     let linkType: string | null = null;
     let embedLink: string | null = null;
 
     const embedLinkExcepts = ["ddinstagram.com/", "vxtwitter.com/", "www.vt.tiktok.com/"]
     if (embedLinkExcepts.some(el => link.includes(el))) {
-        return;
+        return null;
     }
 
     if (link.includes('//instagram.com/') && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
@@ -162,19 +162,14 @@ export const getSocialMediaInfo = async (message: Message, link: string) => {
             };
         }
 
-        if (embedComp !== null) {
-            data.embeds = [embedComp]
-        }
-        // await message.reply(data)
-
-        // files.forEach((a) => fs.unlink(a, () => null))
+        // @ts-ignore
+        if (embedComp !== null) data.embeds = [embedComp]
         return data
     } else if (embedLink) {
-        await message.reply(embedLink)
-        return {
-            content: embedLink
-        }
+        return { content: embedLink }
     }
+
+    return null;
 }
 
 export const isScrappedMedia = (link: string) => {
@@ -229,8 +224,8 @@ export const handlerLink = async (message: Message, bot: Client) => {
             .setLabel('Also Remove Embed')
             .setStyle(ButtonStyle.Primary);
 
-        const row = new ActionRowBuilder()
-            .addComponents(yes, withRemoveEmbed, no);
+        const row = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents([yes, withRemoveEmbed, no]);
 
         await message.reply({
             content: `Want to get Media from link?`,
