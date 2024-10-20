@@ -166,7 +166,7 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
         if (embedComp !== null) data.embeds = [embedComp]
         return data
     } else if (embedLink) {
-        return { content: embedLink }
+        return embedLink
     }
 
     return null;

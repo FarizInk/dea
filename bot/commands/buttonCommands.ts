@@ -27,12 +27,21 @@ export class Example {
       result.forEach(async (data: string|MessagePayload|MessagePayloadOption) => await message.reply(data))
       await interaction.message.delete()
     } else if (result.length === 1) {
-      await interaction.message.edit({
+      // @ts-ignore
+      const data = result[0]
+      if (typeof data === 'string') {
+        await interaction.message.edit({
+          content: data,
+          components: [],
+        })
+      } else {
         // @ts-ignore
-        ...result[0],
-        content: null,
-        components: [],
-      })
+        await interaction.message.edit({
+          ...data,
+          content: null,
+          components: [],
+        })
+      }
     } else {
       await interaction.message.edit({
         content: 'No media Found 😔',
