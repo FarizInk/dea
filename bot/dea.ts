@@ -8,7 +8,8 @@ import axios from 'axios'
 import type { Client } from "discordx";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
-export const removeReactions = async (userId: string, message: Message) => {
+export const removeReactions = async (message: Message) => {
+    const userId = message.client.user.id
     const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(userId));
 
     try {

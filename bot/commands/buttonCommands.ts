@@ -58,7 +58,7 @@ export class Example {
       })
     })
 
-    if (isScrappedMedia(links.join(' ')) && message.author.id !== interaction.user?.id) await removeReactions(interaction.user.id, message)
+    await removeReactions(message)
   }
 
   @ButtonComponent({ id: "no" })
