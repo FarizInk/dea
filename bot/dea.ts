@@ -6,20 +6,17 @@ import * as stream from 'stream';
 import { promisify } from 'util';
 import axios from 'axios'
 import type { Client } from "discordx";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } from 'discord.js';
 
-const removeReactions = async (bot: Client, message: Message) => {
-    const botId = bot.user?.id
+export const removeReactions = async (userId: string, message: Message) => {
+    const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(userId));
 
-    if (botId) {
-        const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(botId));
-
-        try {
-            for (const reaction of userReactions.values()) {
-                await reaction.users.remove(botId);
-            }
-        } catch (error) {
-            console.error('Failed to remove reactions.');
+    try {
+        for (const reaction of userReactions.values()) {
+            await reaction.users.remove(userId);
         }
+    } catch (error) {
+        console.error('Failed to remove reactions.');
     }
 }
 
@@ -44,10 +41,10 @@ const downloadFile = async (name: string, url: string) => {
         const response = await axios.get(url, {
             responseType: "stream",
         });
-    
+
         response.data.pipe(writer)
         await finishedDownload(writer);
-    
+
         return filePath
     } catch (error) {
         console.log(`error download file: ${url}`)
@@ -86,7 +83,7 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
     return [];
 }
 
-const getSocialMediaInfo = async (message: Message, link: string) => {
+export const getSocialMediaInfo = async (message: Message, link: string) => {
     const files = await cobaltGetMedia(link)
     let linkType: string | null = null;
     let embedLink: string | null = null;
@@ -118,25 +115,69 @@ const getSocialMediaInfo = async (message: Message, link: string) => {
 
     if (files.length >= 1) {
         const mapFile = files.map((a) => ({ attachment: a }))
+        let embedComp = null
+        let data = { files: mapFile, embeds: [] }
         if (linkType === 'twitter' && embedLink) {
             const { data: responseData } = await axios.get(embedLink.replace('vxtwitter.com/', 'api.vxtwitter.com/'))
-            await message.reply({
-                content: `"${responseData?.text}" - ${responseData?.user_name} (@${responseData?.user_screen_name})`,
-                files: mapFile
-            })
-        } else {
-            await message.reply({ files: mapFile })
+            embedComp = {
+                color: 0x000000,
+                title: responseData?.user_name, // name
+                url: `https://x.com/${responseData?.user_screen_name}`,
+                author: {
+                    name: `@${responseData?.user_screen_name}`, // username
+                },
+                description: responseData?.text, // caption
+                thumbnail: {
+                    url: responseData?.user_profile_image_url.replace('_normal', ''), // photo profile
+                },
+                timestamp: new Date(responseData?.date).toISOString(),
+                footer: {
+                    text: 'X / Twitter',
+                },
+            };
+        } else if (linkType === 'tiktok') {
+            const { data: responseData } = await axios.get(`https://www.tiktok.com/oembed?url=${link}`)
+            embedComp = {
+                color: 0xfe2858,
+                title: responseData?.author_name, // name
+                url: `https://tiktok.com/@${responseData?.author_unique_id}`,
+                author: {
+                    name: `@${responseData?.author_unique_id}`, // username
+                },
+                description: responseData?.title, // caption
+                footer: {
+                    text: 'Tiktok',
+                },
+            };
+        } else if (linkType === 'ig') {
+            const { data: responseData } = await axios.get(`https://i.instagram.com/api/v1/oembed/?url=${link}`)
+            embedComp = {
+                color: 0xc72784,
+                title: responseData?.author_name, // name
+                url: `https://instagram.com/${responseData?.author_name}`,
+                description: responseData?.title, // caption
+                footer: {
+                    text: 'Instagram',
+                },
+            };
         }
-        message.suppressEmbeds(true)
 
-        files.forEach((a) => fs.unlink(a, () => null))
+        if (embedComp !== null) {
+            data.embeds = [embedComp]
+        }
+        // await message.reply(data)
+
+        // files.forEach((a) => fs.unlink(a, () => null))
+        return data
     } else if (embedLink) {
         await message.reply(embedLink)
-        message.suppressEmbeds(true)
+        return {
+            content: embedLink
+        }
     }
 }
 
-const isScrappedMedia = (link: string) => {
+export const isScrappedMedia = (link: string) => {
     return [
         // instagram
         '//instagram.com/p',
@@ -159,23 +200,41 @@ const isScrappedMedia = (link: string) => {
     ].some((a) => link.includes(a))
 }
 
-export const handlerLink = async (message: Message, bot: Client) => {
+export const getLinks = (message: string) => {
     const msgHttp: Array<string> =
-        message.toString().match(/\bhttp?:\/\/\S+/gi) ?? [];
+        message.match(/\bhttp?:\/\/\S+/gi) ?? [];
     const msgHttps: Array<string> =
-        message.toString().match(/\bhttps?:\/\/\S+/gi) ?? [];
-    const links = msgHttp.concat(msgHttps);
+        message.match(/\bhttps?:\/\/\S+/gi) ?? [];
 
-    if (isScrappedMedia(links.join(' ')) && message.author.id !== bot.user?.id) await message.react('🫰')
+    return msgHttp.concat(msgHttps);
+}
 
-    for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        if (isScrappedMedia(link)) {
-            await getSocialMediaInfo(message, link)
-        } else {
-            // Next feature: note the link to the database
-        }
+
+
+export const handlerLink = async (message: Message, bot: Client) => {
+    const links = getLinks(message.content)
+    if (isScrappedMedia(links.join(' ')) && message.author.id !== bot.user?.id) {
+        const no = new ButtonBuilder()
+            .setCustomId('no')
+            .setLabel('Nope')
+            .setStyle(ButtonStyle.Danger);
+
+        const yes = new ButtonBuilder()
+            .setCustomId('get-media')
+            .setLabel('Yes')
+            .setStyle(ButtonStyle.Secondary);
+
+        const withRemoveEmbed = new ButtonBuilder()
+            .setCustomId('get-media-remove-embed')
+            .setLabel('Also Remove Embed')
+            .setStyle(ButtonStyle.Primary);
+
+        const row = new ActionRowBuilder()
+            .addComponents(yes, withRemoveEmbed, no);
+
+        await message.reply({
+            content: `Want to get Media from link?`,
+            components: [row],
+        });
     }
-
-    if (isScrappedMedia(links.join(' ')) && message.author.id !== bot.user?.id) await removeReactions(bot, message)
 };
