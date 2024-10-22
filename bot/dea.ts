@@ -84,43 +84,18 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
     return [];
 }
 
-export const getSocialMediaInfo = async (link: string): Promise<string | MessagePayload | MessagePayloadOption | null> => {
-    const files = await cobaltGetMedia(link)
-    let linkType: string | null = null;
-    let embedLink: string | null = null;
+const getTwitter = async (link: string) => {
+    try {
+        const { data: responseData } = await axios.get(link.replace('//twitter.com/', '//api.vxtwitter.com/').replace('//x.com/', '//api.vxtwitter.com/'))
 
-    const embedLinkExcepts = ["ddinstagram.com/", "vxtwitter.com/", "www.vt.tiktok.com/"]
-    if (embedLinkExcepts.some(el => link.includes(el))) {
-        return null;
-    }
+        let files: string[] = []
+        responseData.mediaURLs.forEach(async (url: string, key: number) => {
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${key}`, url)
+            if (filePath) files.push(filePath)
+        })
 
-    if (link.includes('//instagram.com/') && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
-        embedLink = link.replace("instagram.com/", "ddinstagram.com/");
-        linkType = 'ig'
-    } else if (link.includes('//www.instagram.com/') && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
-        embedLink = link.replace("www.instagram.com/", "ddinstagram.com/");
-        linkType = 'ig'
-    } else if (["//twitter.com/"].some((a) => link.includes(a))) {
-        embedLink = link.replace("twitter.com/", "vxtwitter.com/");
-        linkType = 'twitter'
-    } else if (["//x.com/"].some((a) => link.includes(a))) {
-        embedLink = link.replace("x.com/", "vxtwitter.com/")
-        linkType = 'twitter'
-    } else if (link.includes('//tiktok.com/') && ["/video", "/photo"].some((a) => link.includes(a))) {
-        embedLink = link.replace("tiktok.com/", "vm.dstn.to/");
-        linkType = 'tiktok'
-    } else if (link.includes('//www.tiktok.com/') && ["/video", "/photo"].some((a) => link.includes(a))) {
-        embedLink = link.replace("www.tiktok.com/", "vm.dstn.to/");
-        linkType = 'tiktok'
-    }
-
-    if (files.length >= 1) {
-        const mapFile = files.map((a) => ({ attachment: a }))
-        let embedComp = null
-        let data = { files: mapFile, embeds: [] }
-        if (linkType === 'twitter' && embedLink) {
-            const { data: responseData } = await axios.get(embedLink.replace('vxtwitter.com/', 'api.vxtwitter.com/'))
-            embedComp = {
+        return {
+            embed: {
                 color: 0x000000,
                 title: responseData?.user_name, // name
                 url: `https://x.com/${responseData?.user_screen_name}`,
@@ -135,8 +110,76 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
                 footer: {
                     text: 'X / Twitter',
                 },
-            };
-        } else if (linkType === 'tiktok') {
+            },
+            files,
+        }
+    } catch (error) {
+        return {
+            embed: null,
+            files: [],
+        };
+    }
+}
+
+const getInstagram = async (link: string) => {
+    try {
+        const { data: responseData } = await axios.get(`${link}?__a=1&__d=dis`)
+
+        let embed = null;
+        let files: string[] = []
+
+        if (responseData.num_results) {
+            const item = responseData.items[0]
+
+            embed = {
+                color: 0xc72784,
+                title: item.user?.full_name, // name
+                url: `https://instagram.com/${item.user?.username}`,
+                author: {
+                    name: `@${item.user?.username}`, // username
+                },
+                description: item.caption?.text ?? null, // caption
+                thumbnail: {
+                    url: item.user?.hd_profile_pic_url_info?.url ?? null, // photo profile
+                },
+                timestamp: new Date(parseInt(item.taken_at + '000')).toISOString(),
+                footer: {
+                    text: 'Instagram',
+                },
+                files: [],
+            }
+
+            // @ts-ignore
+            item.carousel_media?.forEach(async (media, key: number) => {
+                const url = media.image_versions2?.candidates[0]?.url ?? null;
+                if (url) {
+                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${key}`, url)
+                    if (filePath) files.push(filePath)
+                }
+            })
+        }
+
+        return {
+            embed,
+            files,
+        }
+    } catch (error) {
+        return {
+            embed: null,
+            files: [],
+        };
+    }
+}
+
+export const getSocialMediaInfo = async (link: string): Promise<string | MessagePayload | MessagePayloadOption | null> => {
+    let files: string[] = []
+    let embedComp = null
+    if (["//twitter.com/", "//x.com/"].some((a) => link.includes(a))) {
+        const scrapper = await getTwitter(link)
+        files = scrapper.files
+        embedComp = scrapper.embed
+    } else if (["//tiktok.com/", "//www.tiktok.com/", "//vt.tiktok.com/"].some((a) => link.includes(a))) {
+        try {
             const { data: responseData } = await axios.get(`https://www.tiktok.com/oembed?url=${link}`)
             embedComp = {
                 color: 0xfe2858,
@@ -150,27 +193,21 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
                     text: 'Tiktok',
                 },
             };
-        } else if (linkType === 'ig') {
-            const { data: responseData } = await axios.get(`https://i.instagram.com/api/v1/oembed/?url=${link}`)
-            embedComp = {
-                color: 0xc72784,
-                title: responseData?.author_name, // name
-                url: `https://instagram.com/${responseData?.author_name}`,
-                description: responseData?.title, // caption
-                footer: {
-                    text: 'Instagram',
-                },
-            };
+        } catch (error) {
+            console.log('tiktok error', error);
         }
-
-        // @ts-ignore
-        if (embedComp !== null) data.embeds = [embedComp]
-        return data
-    } else if (embedLink) {
-        return embedLink
     }
+    // NOTE: ADD COOKIES TO AXIOS REQUEST
+    // else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
 
-    return null;
+    //     const scrapper = await getInstagram(link)
+    //     files = scrapper.files
+    //     embedComp = scrapper.embed
+    // }
+
+    if (files.length === 0) files = await cobaltGetMedia(link)
+
+    return { files: files.map((a) => ({ attachment: a })), embeds: embedComp ? [embedComp] : [] };
 }
 
 export const isScrappedMedia = (link: string) => {
@@ -193,6 +230,7 @@ export const isScrappedMedia = (link: string) => {
         '//facebook.com/',
         '//www.facebook.com/',
         // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
+        // NOTE: add IG Story, must create scrapper with puppeteer and deployed to rasp. 
     ].some((a) => link.includes(a))
 }
 

@@ -12,6 +12,11 @@ export class Example {
     const links = getLinks(message.content)
     await message.react('🫰');
 
+    await interaction.message.edit({
+      content: 'Getting Media...',
+      components: [],
+    })
+
     let result: Array<string|MessagePayload|MessagePayloadOption> = []
     for (let i = 0; i < links.length; i++) {
       const link = links[i];
@@ -20,7 +25,6 @@ export class Example {
         if (data) result.push(data) 
       }
     }
-
 
     if (result.length >= 2) {
       // @ts-ignore
@@ -47,7 +51,6 @@ export class Example {
         content: 'No media Found 😔',
         components: [],
       })
-      await interaction.message.delete()
     }
 
     result?.forEach((data) => {
