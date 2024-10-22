@@ -229,6 +229,8 @@ export const isScrappedMedia = (link: string) => {
         // facebook
         '//facebook.com/',
         '//www.facebook.com/',
+        // BlueSky
+        '//bsky.app/',
         // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
         // NOTE: add IG Story, must create scrapper with puppeteer and deployed to rasp. 
     ].some((a) => link.includes(a))
