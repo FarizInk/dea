@@ -169,6 +169,7 @@ const getInstagram = async (link: string) => {
             files,
         }
     } catch (error) {
+        console.log(error)
         return {
             embed: null,
             files: [],
