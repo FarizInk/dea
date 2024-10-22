@@ -123,7 +123,12 @@ const getTwitter = async (link: string) => {
 
 const getInstagram = async (link: string) => {
     try {
-        const { data: responseData } = await axios.get(`${link}?__a=1&__d=dis`)
+        const { data: responseData } = await axios.get(`${link}?__a=1&__d=dis`, {
+            headers: {
+                'Cookie': process.env.IG_COOKIES
+            },
+            withCredentials: true
+        })
 
         let embed = null;
         let files: string[] = []
@@ -196,14 +201,11 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
         } catch (error) {
             console.log('tiktok error', error);
         }
+    } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
+        const scrapper = await getInstagram(link)
+        files = scrapper.files
+        embedComp = scrapper.embed
     }
-    // NOTE: ADD COOKIES TO AXIOS REQUEST
-    // else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
-
-    //     const scrapper = await getInstagram(link)
-    //     files = scrapper.files
-    //     embedComp = scrapper.embed
-    // }
 
     if (files.length === 0) files = await cobaltGetMedia(link)
 
