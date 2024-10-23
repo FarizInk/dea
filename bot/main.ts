@@ -66,7 +66,7 @@ bot.once("ready", async () => {
   console.log("Remove Cache File");
   fs.readdir('./cache', (err, files) => {
     if (err) {
-      console.log(err);
+      console.error(err);
     }
 
     files.forEach(file => {
