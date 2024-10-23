@@ -48,7 +48,7 @@ const downloadFile = async (name: string, url: string) => {
 
         return filePath
     } catch (error) {
-        console.log(`error download file: ${url}`)
+        console.error(`error download file: ${url}`)
         return null
     }
 }
@@ -127,7 +127,7 @@ const scrapIG = async (link: string) => {
     url.hash = '';
 
     try {
-        const { data: responseData } = await axios.get(`${url}?__a=1&__d=dis`, {
+        const { data: responseData } = await axios.get(`${url.toString()}?__a=1&__d=dis`, {
             headers: {
                 'Cookie': process.env.IG_COOKIES
             },
@@ -180,6 +180,53 @@ const scrapIG = async (link: string) => {
     }
 }
 
+const scrapIGStories = async (link: string) => {
+    const url = new URL(link)
+    url.search = '';
+    url.hash = '';
+
+    const id = url.toString().split('instagram.com/')[1].split('/').filter((a) => a).slice(-1).pop() ?? null;
+
+    try {
+        const { data: responseIndown } = await axios.get('https://indown.io/get-url?privateLink=' + encodeURIComponent(url.toString()))
+
+        let files: string[] = []
+
+        const { data: responseData } = await axios.get(responseIndown.url, {
+            headers: {
+                'Cookie': process.env.IG_COOKIES
+            },
+            withCredentials: true
+        })
+
+        const media = responseData.data?.reels_media[0] ?? []
+        const items = media?.items ?? []
+
+        if (items.length >= 1 && items.length <= 10) {
+            // @ts-ignore
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const url = item.video_resources ? (item.video_resources[0]?.src ?? null) : (item.display_url ?? null);
+                if (id && id.match("[a-zA-Z]+") === null && id === item.id && url) {
+                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
+                    if (filePath) files.push(filePath)
+                } else if (id && id.match("[a-zA-Z]+") !== null && url) {
+                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
+                    if (filePath) files.push(filePath)
+                }
+            }
+        }
+
+        return {
+            files,
+        }
+    } catch (error) {
+        return {
+            files: [],
+        };
+    }
+}
+
 export const getSocialMediaInfo = async (link: string): Promise<string | MessagePayload | MessagePayloadOption | null> => {
     let files: string[] = []
     let embedComp = null
@@ -203,12 +250,15 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
                 },
             };
         } catch (error) {
-            console.log('tiktok error', error);
+            console.error('tiktok error', error);
         }
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
         const scrapper = await scrapIG(link)
         files = scrapper.files
         embedComp = scrapper.embed
+    } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/stories/"].some((a) => link.includes(a))) {
+        const scrapper = await scrapIGStories(link)
+        files = scrapper.files
     }
 
     if (files.length === 0) files = await cobaltGetMedia(link)
@@ -221,8 +271,10 @@ export const isScrappedMedia = (link: string) => {
         // instagram
         '//instagram.com/p',
         '//instagram.com/reel', // include reel & reels
+        '//instagram.com/stories',
         '//www.instagram.com/p',
         '//www.instagram.com/reel', // include reel & reels
+        '//www.instagram.com/stories',
         // twitter or x
         '//twitter.com/',
         '//x.com/',
@@ -238,7 +290,6 @@ export const isScrappedMedia = (link: string) => {
         // BlueSky
         '//bsky.app/',
         // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
-        // NOTE: add IG Story, must create scrapper with puppeteer and deployed to rasp. 
     ].some((a) => link.includes(a))
 }
 

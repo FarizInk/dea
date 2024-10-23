@@ -5,6 +5,8 @@ import { Client } from "discordx";
 import "dotenv/config"
 import { handlerLink } from "./dea.js";
 import ms from "ms";
+import * as fs from 'fs';
+import * as path from 'path';
 
 const botToken = process.env.BOT_TOKEN ?? null
 
@@ -60,6 +62,21 @@ bot.once("ready", async () => {
   }
   setPresence();
   setInterval(setPresence, ms("1h"));
+
+  console.log("Remove Cache File");
+  fs.readdir('./cache', (err, files) => {
+    if (err) {
+      console.log(err);
+    }
+
+    files.forEach(file => {
+      const fileDir = path.join('./cache', file);
+
+      if (file !== '.gitignore') {
+        fs.unlinkSync(fileDir);
+      }
+    });
+  });
 
   console.log("Bot started");
 });
