@@ -84,7 +84,7 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
     return [];
 }
 
-const getTwitter = async (link: string) => {
+const scrapTwitter = async (link: string) => {
     try {
         const { data: responseData } = await axios.get(link.replace('//twitter.com/', '//api.vxtwitter.com/').replace('//x.com/', '//api.vxtwitter.com/'))
 
@@ -121,9 +121,13 @@ const getTwitter = async (link: string) => {
     }
 }
 
-const getInstagram = async (link: string) => {
+const scrapIG = async (link: string) => {
+    const url = new URL(link)
+    url.search = '';
+    url.hash = '';
+
     try {
-        const { data: responseData } = await axios.get(`${link}?__a=1&__d=dis`, {
+        const { data: responseData } = await axios.get(`${url}?__a=1&__d=dis`, {
             headers: {
                 'Cookie': process.env.IG_COOKIES
             },
@@ -180,7 +184,7 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
     let files: string[] = []
     let embedComp = null
     if (["//twitter.com/", "//x.com/"].some((a) => link.includes(a))) {
-        const scrapper = await getTwitter(link)
+        const scrapper = await scrapTwitter(link)
         files = scrapper.files
         embedComp = scrapper.embed
     } else if (["//tiktok.com/", "//www.tiktok.com/", "//vt.tiktok.com/"].some((a) => link.includes(a))) {
@@ -202,7 +206,7 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
             console.log('tiktok error', error);
         }
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
-        const scrapper = await getInstagram(link)
+        const scrapper = await scrapIG(link)
         files = scrapper.files
         embedComp = scrapper.embed
     }
