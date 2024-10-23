@@ -89,10 +89,11 @@ const scrapTwitter = async (link: string) => {
         const { data: responseData } = await axios.get(link.replace('//twitter.com/', '//api.vxtwitter.com/').replace('//x.com/', '//api.vxtwitter.com/'))
 
         let files: string[] = []
-        responseData.mediaURLs.forEach(async (url: string, key: number) => {
-            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${key}`, url)
+        for (let i = 0; i < responseData.mediaURLs.length; i++) {
+            const url = responseData.mediaURLs[i];
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
             if (filePath) files.push(filePath)
-        })
+        }
 
         return {
             embed: {
@@ -158,14 +159,15 @@ const scrapIG = async (link: string) => {
                 files: [],
             }
 
-            // @ts-ignore
-            item.carousel_media?.forEach(async (media, key: number) => {
+            const medias = item.carousel_media ?? [item]
+            for (let i = 0; i < medias.length; i++) {
+                const media = medias[i];
                 const url = media.image_versions2?.candidates[0]?.url ?? null;
                 if (url) {
-                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${key}`, url)
+                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
                     if (filePath) files.push(filePath)
                 }
-            })
+            }
         }
 
         return {
