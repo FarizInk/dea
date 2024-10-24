@@ -244,7 +244,7 @@ const scrapThread = async (link: string) => {
 
     let files: string[] = []
     try {
-        const { data: responseData } = await axios.post('https://api.threadsphotodownloader.com/v2/media?url=' + encodeURIComponent(url.toString()))
+        const { data: responseData } = await axios.get('https://api.threadsphotodownloader.com/v2/media?url=' + encodeURIComponent(url.toString()))
 
         for (let i = 0; i < responseData.image_urls.length; i++) {
             const url = responseData.image_urls[i];
@@ -255,6 +255,31 @@ const scrapThread = async (link: string) => {
         for (let i = 0; i < responseData.video_urls.length; i++) {
             const url = responseData.video_urls[i];
             const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-video-${i}`, url)
+            if (filePath) files.push(filePath)
+        }
+
+        return {
+            files,
+        }
+    } catch (error) {
+        return {
+            files: [],
+        };
+    }
+}
+
+const scrapFacebook = async (link: string) => {
+    let files: string[] = []
+    try {
+        const { data: responseData } = await axios.post('https://getindevice.com/wp-json/aio-dl/video-data/', {
+            url: link,
+            token: 'bc7fdc6dda17ee72a5224de9deb331c8adc1312d08ed936513921e32b081d916',
+        })
+
+        const media = responseData.medias.length ? responseData.medias[0] : null;
+
+        if (media) {
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}`, media.url)
             if (filePath) files.push(filePath)
         }
 
@@ -303,6 +328,9 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
     } else if (["//threads.net/", "//www.threads.net/"].some((a) => link.includes(a)) && ["/post/"].some((a) => link.includes(a))) {
         const scrapper = await scrapThread(link)
         files = scrapper.files
+    } else if (["//facebook.com/", "//www.facebook.com/", "//fb.watch/", '//web.facebook.com/'].some((a) => link.includes(a))) {
+        const scrapper = await scrapFacebook(link)
+        files = scrapper.files
     }
 
     if (files.length === 0) files = await cobaltGetMedia(link)
@@ -331,6 +359,8 @@ export const isScrappedMedia = (link: string) => {
         // facebook
         '//facebook.com/',
         '//www.facebook.com/',
+        '//fb.watch/',
+        '//web.facebook.com/',
         // BlueSky
         '//bsky.app/',
         // Threads

@@ -26,6 +26,13 @@ export class Example {
       }
     }
 
+    result.forEach((item, index) => {
+      // @ts-ignore
+      if (item.embeds && item.embeds.length === 0 && item.files && item.files.length === 0) {
+        result.splice(index, 1)
+      }
+    })
+
     if (result.length >= 1) {
       for (let i = 0; i < result.length; i++) {
         const data = result[i];
