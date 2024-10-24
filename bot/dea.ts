@@ -159,7 +159,7 @@ const scrapIG = async (link: string) => {
                 files: [],
             }
 
-            if (link.includes('/reel')) {
+            if (url.toString().includes('/reel')) {
                 const video = item.video_versions ? item.video_versions[0] : null
                 if (video && video.url) {
                     const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-reel`, video.url)
