@@ -237,6 +237,37 @@ const scrapIGStories = async (link: string) => {
     }
 }
 
+const scrapThread = async (link: string) => {
+    const url = new URL(link)
+    url.search = '';
+    url.hash = '';
+
+    let files: string[] = []
+    try {
+        const { data: responseData } = await axios.post('https://api.threadsphotodownloader.com/v2/media?url=' + encodeURIComponent(url.toString()))
+
+        for (let i = 0; i < responseData.image_urls.length; i++) {
+            const url = responseData.image_urls[i];
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-image-${i}`, url)
+            if (filePath) files.push(filePath)
+        }
+
+        for (let i = 0; i < responseData.video_urls.length; i++) {
+            const url = responseData.video_urls[i];
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-video-${i}`, url)
+            if (filePath) files.push(filePath)
+        }
+
+        return {
+            files,
+        }
+    } catch (error) {
+        return {
+            files: [],
+        };
+    }
+}
+
 export const getSocialMediaInfo = async (link: string): Promise<string | MessagePayload | MessagePayloadOption | null> => {
     let files: string[] = []
     let embedComp = null
@@ -269,6 +300,9 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/stories/"].some((a) => link.includes(a))) {
         const scrapper = await scrapIGStories(link)
         files = scrapper.files
+    } else if (["//threads.net/", "//www.threads.net/"].some((a) => link.includes(a)) && ["/post/"].some((a) => link.includes(a))) {
+        const scrapper = await scrapThread(link)
+        files = scrapper.files
     }
 
     if (files.length === 0) files = await cobaltGetMedia(link)
@@ -299,7 +333,9 @@ export const isScrappedMedia = (link: string) => {
         '//www.facebook.com/',
         // BlueSky
         '//bsky.app/',
-        // NOTE: add threads.net, must create scrapper with puppeteer and deployed to rasp. 
+        // Threads
+        '//threads.net/',
+        '//www.threads.net/',
     ].some((a) => link.includes(a))
 }
 
