@@ -159,13 +159,21 @@ const scrapIG = async (link: string) => {
                 files: [],
             }
 
-            const medias = item.carousel_media ?? [item]
-            for (let i = 0; i < medias.length; i++) {
-                const media = medias[i];
-                const url = media.image_versions2?.candidates[0]?.url ?? null;
-                if (url) {
-                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
+            if (link.includes('/reel')) {
+                const video = item.video_versions ? item.video_versions[0] : null
+                if (video && video.url) {
+                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-reel`, video.url)
                     if (filePath) files.push(filePath)
+                }
+            } else {
+                const medias = item.carousel_media ?? [item]
+                for (let i = 0; i < medias.length; i++) {
+                    const media = medias[i];
+                    const url = media.image_versions2?.candidates[0]?.url ?? null;
+                    if (url) {
+                        const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
+                        if (filePath) files.push(filePath)
+                    }
                 }
             }
         }
