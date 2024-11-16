@@ -16,6 +16,7 @@
     "@discordx/pagination": "^3.5.4",
     "@types/ms": "^0.7.34",
     "axios": "^1.7.7",
+    "btch-downloader": "^2.8.1",
     "discord.js": "^14.15.3",
     "discordx": "^11.11.1",
     "dotenv": "^16.4.5",
