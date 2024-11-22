@@ -140,7 +140,14 @@ const scrapIG = async (link: string) => {
                 const medias = item.carousel_media ?? [item]
                 for (let i = 0; i < medias.length; i++) {
                     const media = medias[i];
-                    const url = media.image_versions2?.candidates[0]?.url ?? null;
+
+                    let url = null
+                    if (media.video_versions?.length >= 1) {
+                        url = media.video_versions[0]?.url
+                    } else {
+                        url =media.image_versions2?.candidates[0]?.url ?? null
+                    }
+
                     if (url) {
                         const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
                         if (filePath) files.push(filePath)
