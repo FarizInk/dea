@@ -49,9 +49,17 @@ export class Example {
             const file = data.files[i];
             files.push(file)
             if ((i + 1) % 10 === 0) {
-              await message.reply({
-                files,
-              })
+              if (i + 1 === totalFiles) {
+                await message.reply({
+                  files,
+                  // @ts-ignore
+                  embeds: data.embeds
+                })
+              } else {
+                await message.reply({
+                  files
+                })
+              }
               files = []
             } else if (i + 1 === totalFiles) {
               await message.reply({
