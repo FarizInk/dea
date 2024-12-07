@@ -209,7 +209,7 @@ const scrapIGStories = async (link: string) => {
 }
 
 const scrapIGReel = async (link: string) => {
-    try {
+\    try {
         const data = await igdl(link)
         let files:string[] = []
         if (data.length >= 1 && data[0]?.url) {
@@ -356,9 +356,11 @@ export const isScrappedMedia = (link: string) => {
         '//instagram.com/p',
         '//instagram.com/reel', // include reel & reels
         '//instagram.com/stories',
+        '//instagram.com/share',
         '//www.instagram.com/p',
         '//www.instagram.com/reel', // include reel & reels
         '//www.instagram.com/stories',
+        '//www.instagram.com/share',
         // twitter or x
         '//twitter.com/',
         '//x.com/',
