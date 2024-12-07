@@ -216,7 +216,7 @@ const scrapIGStories = async (link: string) => {
 }
 
 const scrapIGReel = async (link: string) => {
-\    try {
+    try {
         const data = await igdl(link)
         let files:string[] = []
         if (data.length >= 1 && data[0]?.url) {
