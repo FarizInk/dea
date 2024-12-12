@@ -370,9 +370,11 @@ export const isScrappedMedia = (link: string) => {
         '//instagram.com/p',
         '//instagram.com/reel', // include reel & reels
         '//instagram.com/stories',
+        '//instagram.com/share',
         '//www.instagram.com/p',
         '//www.instagram.com/reel', // include reel & reels
         '//www.instagram.com/stories',
+        '//www.instagram.com/share',
         // twitter or x
         '//twitter.com/',
         '//x.com/',
