@@ -105,7 +105,11 @@ const scrapIG = async (link: string) => {
             },
             withCredentials: true
         })
+    } catch (error) {
+        console.error(error)
+    }
 
+    try {
         const { data: responseData } = await axios.get(`${url.toString()}?__a=1&__d=dis`, {
             headers: {
                 'Cookie': process.env.IG_COOKIES
