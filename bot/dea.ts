@@ -363,9 +363,9 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
         files = scrapper.files
         embedComp = scrapper.embed
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
-        // const scrapper = await scrapIG(link)
-        // files = scrapper.files
-        // embedComp = scrapper.embed
+        const scrapper = await scrapIG(link)
+        files = scrapper.files
+        embedComp = scrapper.embed
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/stories/"].some((a) => link.includes(a))) {
         const scrapper = await scrapIGStories(link)
         files = scrapper.files
