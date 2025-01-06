@@ -89,6 +89,8 @@ export class Example {
     }
 
     await removeReactions(message)
+
+    return result;
   }
 
   @ButtonComponent({ id: "no" })
@@ -111,7 +113,9 @@ export class Example {
     if (!repliedId) return;
     const message = await interaction.message.channel.messages.fetch(repliedId);
 
-    await this.getMedia(interaction, message)
-    message.suppressEmbeds(true)
+    const result = await this.getMedia(interaction, message)
+    if (result && Array.isArray(result) && result.length >= 1) {
+      message.suppressEmbeds(true)
+    }
   }
 }

@@ -3,6 +3,7 @@ import {
   Discord,
   Slash,
 } from "discordx";
+import { isScrappedMedia } from "../dea.js";
 
 @Discord()
 export class Example {
@@ -13,6 +14,8 @@ export class Example {
 
   @Slash({ name: "info", description: 'information about Dea' })
   async infoCommand(command: CommandInteraction): Promise<void> {
-    await command.reply(`Supported Media: ${inlineCode('Instagram')}, ${inlineCode('X / Twitter')}, ${inlineCode('Tiktok')}, ${inlineCode('Twitch')}, ${inlineCode('Facebook')}`)
+    // @ts-ignore
+    const supportedMedias = isScrappedMedia().map((link) => `\n - https:${link}`)
+    await command.reply(`Supported Media: ${supportedMedias}`)
   }
 }

@@ -8,7 +8,7 @@ import axios from 'axios'
 import type { Client } from "discordx";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 // @ts-ignore
-import { igdl, ttdl } from 'btch-downloader'
+import { fbdown, ttdl } from 'btch-downloader'
 
 export const removeReactions = async (message: Message) => {
     const userId = message.client.user.id
@@ -23,7 +23,7 @@ export const removeReactions = async (message: Message) => {
     }
 }
 
-const downloadFile = async (name: string, url: string, ext: string|null = null) => {
+const downloadFile = async (name: string, url: string, ext: string | null = null) => {
     const finishedDownload = promisify(stream.finished);
 
     const extensions = ['.png', '.jpg', '.jpeg', '.mp4', '.webp']
@@ -53,6 +53,39 @@ const downloadFile = async (name: string, url: string, ext: string|null = null) 
         console.error(`error download file: ${url}`)
         return null
     }
+}
+
+const cobaltGetMedia = async (url: string): Promise<string[]> => {
+    try {
+        const { data: responseData } = await axios.post(`${process.env.COBALT_API_URL}/`, {
+            url,
+        }, {
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            }
+        })
+    
+        const fileName = Math.floor(Date.now() / 1000).toString();
+        if (responseData.status === 'redirect' || responseData.status === 'stream') {
+            const filePath = await downloadFile(fileName, responseData.url)
+            return filePath ? [filePath] : [];
+        } else if (responseData.status === "picker") {
+            const pickers = responseData.picker
+            let filePaths: string[] = []
+            for (let j = 0; j < pickers.length; j++) {
+                const picker = pickers[j];
+                const result = await downloadFile(`${fileName}-${j + 1}`, picker.url)
+                if (result) {
+                    filePaths.push(result)
+                }
+            }
+            return filePaths;
+        }
+    } catch (error) {
+    }
+
+    return [];
 }
 
 const scrapTwitter = async (link: string) => {
@@ -110,7 +143,7 @@ const scrapIG = async (link: string) => {
     }
 
     try {
-        const { data: responseData } = await axios.get(`${url.toString()}?__a=1&__d=dis`, {
+        const { data: responseData } = await axios.get(`${url.toString().replace('/reel/', '/p/').replace('/reels/', '/p/')}?__a=1&__d=dis`, {
             headers: {
                 'Cookie': process.env.IG_COOKIES
             },
@@ -156,7 +189,7 @@ const scrapIG = async (link: string) => {
                     if (media.video_versions?.length >= 1) {
                         url = media.video_versions[0]?.url
                     } else {
-                        url =media.image_versions2?.candidates[0]?.url ?? null
+                        url = media.image_versions2?.candidates[0]?.url ?? null
                     }
 
                     if (url) {
@@ -226,25 +259,6 @@ const scrapIGStories = async (link: string) => {
     }
 }
 
-const scrapIGReel = async (link: string) => {
-    try {
-        const data = await igdl(link)
-        let files:string[] = []
-        if (data.length >= 1 && data[0]?.url) {
-            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}`, data[0]?.url, '.mp4')
-            if (filePath) files.push(filePath)
-        }
-
-        return {
-            files,
-        };
-    } catch (error) {
-        return {
-            files: [],
-        };
-    }
-}
-
 const scrapThread = async (link: string) => {
     const url = new URL(link)
     url.search = '';
@@ -276,19 +290,20 @@ const scrapThread = async (link: string) => {
     }
 }
 
-// NOTE: change to btch-downloader
 const scrapFacebook = async (link: string) => {
     let files: string[] = []
     try {
-        const { data: responseData } = await axios.post('https://getindevice.com/wp-json/aio-dl/video-data/', {
-            url: link,
-            token: 'bc7fdc6dda17ee72a5224de9deb331c8adc1312d08ed936513921e32b081d916',
-        })
+        let extension = null;
+        const data = await fbdown(link)
+        const dataArray = Object.keys(data).map((key) => data[key]);
+        const mediaUrl = dataArray.length ? dataArray[0] : null;
 
-        const media = responseData.medias.length ? responseData.medias[0] : null;
+        if (link.includes('watch')) {
+            extension = '.mp4'
+        }
 
-        if (media) {
-            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}`, media.url)
+        if (mediaUrl) {
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}`, mediaUrl, extension)
             if (filePath) files.push(filePath)
         }
 
@@ -306,7 +321,7 @@ const scrapTiktok = async (link: string) => {
     try {
         const data = await ttdl(link)
 
-        let files:string[] = []
+        let files: string[] = []
         if (data?.video && data.video.length >= 1) {
             const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}`, data.video[0])
             if (filePath) files.push(filePath)
@@ -347,13 +362,10 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
         const scrapper = await scrapTiktok(link)
         files = scrapper.files
         embedComp = scrapper.embed
-    } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/"].some((a) => link.includes(a))) {
-        const scrapper = await scrapIG(link)
-        files = scrapper.files
-        embedComp = scrapper.embed
-    } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/reel/", "/reels/"].some((a) => link.includes(a))) {
-        const scrapper = await scrapIGReel(link)
-        files = scrapper.files
+    } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/p/", "/reel/", "/reels/"].some((a) => link.includes(a))) {
+        // const scrapper = await scrapIG(link)
+        // files = scrapper.files
+        // embedComp = scrapper.embed
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/stories/"].some((a) => link.includes(a))) {
         const scrapper = await scrapIGStories(link)
         files = scrapper.files
@@ -365,11 +377,13 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
         files = scrapper.files
     }
 
+    if (files.length === 0) files = await cobaltGetMedia(link)
+
     return { files: files.map((a) => ({ attachment: a })), embeds: embedComp ? [embedComp] : [] };
 }
 
-export const isScrappedMedia = (link: string) => {
-    return [
+export const isScrappedMedia = (link: string | null = null): Boolean | String[] => {
+    const allowed = [
         // instagram
         '//instagram.com/p',
         '//instagram.com/reel', // include reel & reels
@@ -394,7 +408,18 @@ export const isScrappedMedia = (link: string) => {
         // Threads
         '//threads.net/',
         '//www.threads.net/',
-    ].some((a) => link.includes(a))
+        // BlueSky
+        '//bsky.app/',
+        // twitch
+        '//twitch.tv/',
+        '//www.twitch.tv/',
+    ];
+
+    if (link === null) {
+        return allowed
+    }
+
+    return allowed.some((a) => link.includes(a))
 }
 
 export const getLinks = (message: string) => {

@@ -21,8 +21,8 @@ importers:
         specifier: ^1.7.7
         version: 1.7.7
       btch-downloader:
-        specifier: ^2.8.1
-        version: 2.8.1
+        specifier: ^2.8.3
+        version: 2.8.3
       discord.js:
         specifier: ^14.15.3
         version: 14.16.3
@@ -236,8 +236,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
 
-  btch-downloader@2.8.1:
-    resolution: {integrity: sha512-U9PMNmK46WNfFVrnGhrWSuceGeq6A7LzkWK0Gvgtv5thfGheSG1opJVWfSp3ys6N6NK4LYcERJYtlA+ExPAlFw==}
+  btch-downloader@2.8.3:
+    resolution: {integrity: sha512-XJO6KYpTxAMpB4xE/ydQCSA6MeL24+MW92w8etlz+KQybmG5BLGzG6qumkFKWXmJ0wTXnZrQISDs6zDotMEwTA==}
 
   cacheable-lookup@2.0.1:
     resolution: {integrity: sha512-EMMbsiOTcdngM/K6gV/OxF2x0t07+vMOWxZNSCRQMjO2MY2nhZQ6OYhOOpyQrbhqsgtvKGI7hcq6xjnA92USjg==}
@@ -994,7 +994,7 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  btch-downloader@2.8.1:
+  btch-downloader@2.8.3:
     dependencies:
       axios: 1.7.7
       cheerio: 1.0.0
