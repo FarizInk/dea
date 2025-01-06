@@ -10,6 +10,8 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 // @ts-ignore
 import { fbdown, ttdl } from 'btch-downloader'
 
+const DEBUG = process.env.DEBUG ? process.env.DEBUG.toLowerCase() === 'true' : false
+
 export const removeReactions = async (message: Message) => {
     const userId = message.client.user.id
     const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(userId));
@@ -19,7 +21,7 @@ export const removeReactions = async (message: Message) => {
             await reaction.users.remove(userId);
         }
     } catch (error) {
-        console.error('Failed to remove reactions.');
+        if (DEBUG) console.error('Failed to remove reactions.')
     }
 }
 
@@ -50,7 +52,7 @@ const downloadFile = async (name: string, url: string, ext: string | null = null
 
         return filePath
     } catch (error) {
-        console.error(`error download file: ${url}`)
+        if (DEBUG) console.error(`error download file: ${url}`)
         return null
     }
 }
@@ -83,6 +85,7 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
             return filePaths;
         }
     } catch (error) {
+        if (DEBUG) console.error(error)
     }
 
     return [];
@@ -119,6 +122,7 @@ const scrapTwitter = async (link: string) => {
             files,
         }
     } catch (error) {
+        if (DEBUG) console.error(error)
         return {
             embed: null,
             files: [],
@@ -139,7 +143,7 @@ const scrapIG = async (link: string) => {
             withCredentials: true
         })
     } catch (error) {
-        console.error(error)
+        if (DEBUG) console.error(error)
     }
 
     try {
@@ -205,6 +209,7 @@ const scrapIG = async (link: string) => {
             files,
         }
     } catch (error) {
+        if (DEBUG) console.error(error)
         return {
             embed: null,
             files: [],
@@ -253,6 +258,7 @@ const scrapIGStories = async (link: string) => {
             files,
         }
     } catch (error) {
+        if (DEBUG) console.error(error)
         return {
             files: [],
         };
@@ -284,6 +290,7 @@ const scrapThread = async (link: string) => {
             files,
         }
     } catch (error) {
+        if (DEBUG) console.error(error)
         return {
             files: [],
         };
@@ -311,6 +318,7 @@ const scrapFacebook = async (link: string) => {
             files,
         }
     } catch (error) {
+        if (DEBUG) console.error(error)
         return {
             files: [],
         };
@@ -344,6 +352,7 @@ const scrapTiktok = async (link: string) => {
             files,
         };
     } catch (error) {
+        if (DEBUG) console.error(error)
         return {
             embed: null,
             files: [],
