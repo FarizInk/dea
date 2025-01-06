@@ -265,38 +265,6 @@ const scrapIGStories = async (link: string) => {
     }
 }
 
-const scrapThread = async (link: string) => {
-    const url = new URL(link)
-    url.search = '';
-    url.hash = '';
-
-    let files: string[] = []
-    try {
-        const { data: responseData } = await axios.get('https://api.threadsphotodownloader.com/v2/media?url=' + encodeURIComponent(url.toString()))
-
-        for (let i = 0; i < responseData.image_urls.length; i++) {
-            const url = responseData.image_urls[i];
-            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-image-${i}`, url)
-            if (filePath) files.push(filePath)
-        }
-
-        for (let i = 0; i < responseData.video_urls.length; i++) {
-            const url = responseData.video_urls[i];
-            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-video-${i}`, url)
-            if (filePath) files.push(filePath)
-        }
-
-        return {
-            files,
-        }
-    } catch (error) {
-        if (DEBUG) console.error(error)
-        return {
-            files: [],
-        };
-    }
-}
-
 const scrapFacebook = async (link: string) => {
     let files: string[] = []
     try {
@@ -378,9 +346,6 @@ export const getSocialMediaInfo = async (link: string): Promise<string | Message
     } else if (["//instagram.com/", "//www.instagram.com/"].some((a) => link.includes(a)) && ["/stories/"].some((a) => link.includes(a))) {
         const scrapper = await scrapIGStories(link)
         files = scrapper.files
-    } else if (["//threads.net/", "//www.threads.net/"].some((a) => link.includes(a)) && ["/post/"].some((a) => link.includes(a))) {
-        const scrapper = await scrapThread(link)
-        files = scrapper.files
     } else if (["//facebook.com/", "//www.facebook.com/", "//fb.watch/", '//web.facebook.com/'].some((a) => link.includes(a))) {
         const scrapper = await scrapFacebook(link)
         files = scrapper.files
@@ -414,9 +379,6 @@ export const isScrappedMedia = (link: string | null = null): Boolean | String[] 
         '//www.facebook.com/',
         '//fb.watch/',
         '//web.facebook.com/',
-        // Threads
-        '//threads.net/',
-        '//www.threads.net/',
         // BlueSky
         '//bsky.app/',
         // twitch
