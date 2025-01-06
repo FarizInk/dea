@@ -6,4 +6,5 @@ services:
       - BOT_TOKEN=${BOT_TOKEN}
       - DEBUG=${DEBUG}
       - IG_COOKIES=${IG_COOKIES}
+      - COBALT_API_URL=${COBALT_API_URL}
     restart: unless-stopped
