@@ -14,8 +14,14 @@ export class Example {
 
   @Slash({ name: "info", description: 'information about Dea' })
   async infoCommand(command: CommandInteraction): Promise<void> {
+    let links: string[] = []
     // @ts-ignore
-    const supportedMedias = isScrappedMedia().map((link) => `\n - https:${link}`)
+    isScrappedMedia().forEach((link) => {
+      const url = new URL(`https:${link}`);
+      links.push(`${url.protocol}//${url.host}`)
+    })
+
+    const supportedMedias = [...new Set(links)].map((link) => `\n - ${link}`)
     await command.reply(`Supported Media: ${supportedMedias}`)
   }
 }
