@@ -20,6 +20,10 @@ RUN npm run build
 ## production runner
 FROM node:lts-alpine AS prod-runner
 
+# Install FFmpeg and other required dependencies
+RUN apk update && \
+    apk add --no-cache ffmpeg
+
 # Set work directory
 WORKDIR /app
 
