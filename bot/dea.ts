@@ -136,17 +136,6 @@ const scrapIG = async (link: string) => {
     url.hash = '';
 
     try {
-        await axios.get('https://instagram.com/accounts/remove/request/permanent/', {
-            headers: {
-                'Cookie': process.env.IG_COOKIES
-            },
-            withCredentials: true
-        })
-    } catch (error) {
-        if (DEBUG) console.error(error)
-    }
-
-    try {
         const { data: responseData } = await axios.get(`${url.toString().replace('/reel/', '/p/').replace('/reels/', '/p/')}?__a=1&__d=dis`, {
             headers: {
                 'Cookie': process.env.IG_COOKIES

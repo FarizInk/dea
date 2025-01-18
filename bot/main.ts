@@ -63,7 +63,7 @@ bot.once("ready", async () => {
   setPresence();
   setInterval(setPresence, ms("1h"));
 
-  console.log("Remove Cache File");
+  console.info("Remove Cache File");
   fs.readdir('./cache', (err, files) => {
     if (err) {
       console.error(err);
@@ -78,7 +78,7 @@ bot.once("ready", async () => {
     });
   });
 
-  console.log("Bot started");
+  console.info("Bot started");
 });
 
 bot.on("interactionCreate", (interaction: Interaction) => {

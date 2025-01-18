@@ -5,6 +5,7 @@ import {
 } from "discordx";
 import { getLinks, getSocialMediaInfo, isScrappedMedia, removeReactions } from "../dea.js";
 import * as fs from 'fs';
+import { compressVideo } from '../utils.js'
 
 @Discord()
 export class Example {
@@ -26,58 +27,66 @@ export class Example {
       }
     }
 
-    result.forEach((item, index) => {
+    for (let index = 0; index < result.length; index++) {
+      const item = result[index];
+      // @ts-ignore
+      const files = item.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const stats = fs.statSync(file.attachment)
+        if (stats.size / (1024 * 1024) >= 8) {
+          await compressVideo(file.attachment)
+        }
+      }
+
+
       // @ts-ignore
       if (item.embeds && item.embeds.length === 0 && item.files && item.files.length === 0) {
         result.splice(index, 1)
       }
-    })
+    }
 
-    if (result.length >= 1) {
-      for (let i = 0; i < result.length; i++) {
-        const data = result[i];
-        // @ts-ignore
-        if (data.files.length <= 10) {
-          // @ts-ignore
-          await message.reply(data)
-        } else {
-          // @ts-ignore
-          const totalFiles = data.files.length
-          let files = []
-          for (let i = 0; i < totalFiles; i++) {
-            // @ts-ignore
-            const file = data.files[i];
-            files.push(file)
-            if ((i + 1) % 10 === 0) {
-              if (i + 1 === totalFiles) {
-                await message.reply({
-                  files,
-                  // @ts-ignore
-                  embeds: data.embeds
-                })
-              } else {
-                await message.reply({
-                  files
-                })
-              }
-              files = []
-            } else if (i + 1 === totalFiles) {
-              await message.reply({
-                files,
-                // @ts-ignore
-                embeds: data.embeds
-              })
-            }
-          }
-        }
-      }
-      await interaction.message.delete()
-    } else {
+    if (result.length === 0) {
       await interaction.message.edit({
         content: 'No media Found 😔',
         components: [],
       })
+      return result;
     }
+
+    for (let i = 0; i < result.length; i++) {
+      const data = result[i];
+      // @ts-ignore
+      const totalFiles = data.files.length
+
+      if (totalFiles <= 10) {
+        // @ts-ignore
+        await message.reply(data)
+        continue;
+      }
+
+      let files = []
+      for (let i = 0; i < totalFiles; i++) {
+        // @ts-ignore
+        files.push(data.files[i])
+
+        if (i + 1 === totalFiles) {
+          await message.reply({
+            files,
+            // @ts-ignore
+            embeds: data.embeds
+          })
+        } else if ((i + 1) % 10 === 0) {
+          await message.reply({
+            files
+          })
+          files = []
+        }
+
+      }
+    }
+
+    await interaction.message.delete()
 
     for (let i = 0; i < result.length; i++) {
       const data = result[i];
