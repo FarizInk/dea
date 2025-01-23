@@ -52,7 +52,10 @@ const downloadFile = async (name: string, url: string, ext: string | null = null
 
         return filePath
     } catch (error) {
-        if (DEBUG) console.error(`error download file: ${url}`)
+        if (DEBUG) {
+            console.error(`error download file: ${url}`)
+            console.error(error)
+        } 
         return null
     }
 }
