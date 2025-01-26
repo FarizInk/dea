@@ -55,7 +55,7 @@ const downloadFile = async (name: string, url: string, ext: string | null = null
         if (DEBUG) {
             console.error(`error download file: ${url}`)
             console.error(error)
-        } 
+        }
         return null
     }
 }
@@ -70,7 +70,7 @@ const cobaltGetMedia = async (url: string): Promise<string[]> => {
                 "Content-Type": "application/json"
             }
         })
-    
+
         const fileName = Math.floor(Date.now() / 1000).toString();
         if (responseData.status === 'redirect' || responseData.status === 'stream') {
             const filePath = await downloadFile(fileName, responseData.url)
@@ -139,61 +139,61 @@ const scrapIG = async (link: string) => {
     url.hash = '';
 
     try {
-        const { data: responseData } = await axios.get(`${url.toString().replace('/reel/', '/p/').replace('/reels/', '/p/')}?__a=1&__d=dis`, {
-            headers: {
-                'Cookie': process.env.IG_COOKIES
-            },
-            withCredentials: true
-        })
+        const { data: responseData } = await axios.get(`${url.toString().replace('/reel/', '/p/').replace('/reels/', '/p/')}?__a=1&__d=dis`)
 
         let embed = null;
         let files: string[] = []
 
-        if (responseData.num_results) {
-            const item = responseData.items[0]
+        const media = responseData?.graphql?.shortcode_media ?? null
+        const data = media?.edge_sidecar_to_children ?? media?.video_url ?? null
 
-            embed = {
-                color: 0xc72784,
-                title: item.user?.full_name, // name
-                url: `https://instagram.com/${item.user?.username}`,
-                author: {
-                    name: `@${item.user?.username}`, // username
-                },
-                description: item.caption?.text ?? null, // caption
-                thumbnail: {
-                    url: item.user?.hd_profile_pic_url_info?.url ?? null, // photo profile
-                },
-                timestamp: new Date(parseInt(item.taken_at + '000')).toISOString(),
-                footer: {
-                    text: 'Instagram',
-                },
+        const caption = media?.edge_media_to_caption?.edges[0]?.node?.text ?? null
+        const username = media?.owner?.username ?? null
+        const name = media?.owner?.full_name ?? null
+        const profilePic = media?.owner?.profile_pic_url ?? null
+        const takenAt = media?.taken_at_timestamp ? new Date(parseInt(media.taken_at_timestamp + '000')).toISOString() : null
+
+        if (!username || !name || !takenAt) {
+            return {
+                embed: null,
                 files: [],
-            }
+            };
+        }
 
-            if (url.toString().includes('/reel')) {
-                const video = item.video_versions ? item.video_versions[0] : null
-                if (video && video.url) {
-                    const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-reel`, video.url)
-                    if (filePath) files.push(filePath)
-                }
-            } else {
-                const medias = item.carousel_media ?? [item]
-                for (let i = 0; i < medias.length; i++) {
-                    const media = medias[i];
+        embed = {
+            color: 0xc72784,
+            title: name, // name
+            url: `https://instagram.com/${username}`,
+            author: {
+                name: `@${username}`, // username
+            },
+            description: caption ?? null, // caption
+            thumbnail: {
+                url: profilePic ?? null, // photo profile
+            },
+            timestamp: takenAt,
+            footer: {
+                text: 'Instagram',
+            },
+            files: [],
+        }
 
-                    let url = null
-                    if (media.video_versions?.length >= 1) {
-                        url = media.video_versions[0]?.url
-                    } else {
-                        url = media.image_versions2?.candidates[0]?.url ?? null
-                    }
+        if (typeof data === 'object') {
+            for (let key in data) {
+                // skip loop if the property is from prototype
+                if (!data?.hasOwnProperty(key)) continue;
 
+                for (let i = 0; i < data[key].length; i++) {
+                    const url = data[key][i]?.node?.video_url ?? data[key][i]?.node?.display_url ?? null;
                     if (url) {
                         const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-${i}`, url)
                         if (filePath) files.push(filePath)
                     }
                 }
             }
+        } else if (typeof data === 'string' && data !== '') {
+            const filePath = await downloadFile(`${Math.floor(Date.now() / 1000).toString()}-reel`, data)
+            if (filePath) files.push(filePath)
         }
 
         return {
