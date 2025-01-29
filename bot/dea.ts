@@ -145,7 +145,7 @@ const scrapIG = async (link: string) => {
         let files: string[] = []
 
         const media = responseData?.graphql?.shortcode_media ?? null
-        const data = media?.edge_sidecar_to_children ?? media?.video_url ?? null
+        const data = media?.edge_sidecar_to_children ?? media?.video_url ?? media?.display_url ?? null
 
         const caption = media?.edge_media_to_caption?.edges[0]?.node?.text ?? null
         const username = media?.owner?.username ?? null
