@@ -111,83 +111,104 @@ export const removeCacheFiles = () => {
   });
 };
 
-export const getEmbed = (response) => {
-  const data = response.data ?? null;
+type TwitterData = {
+  user_name: string;
+  user_screen_name: string;
+  text: string;
+  user_profile_image_url: string;
+  date: string;
+};
 
-  if (response.via === "vxtwitter") {
+type InstagramCookiesData = {
+  user?: {
+    username?: string;
+    full_name?: string;
+    hd_profile_pic_url_info?: { url?: string };
+  };
+  caption?: { text?: string };
+  taken_at?: string;
+};
+
+type InstagramData = {
+  data_to_caption?: {
+    edges: { node: { text: string } }[];
+  };
+  owner?: {
+    username: string;
+    full_name: string;
+    profile_pic_url: string;
+  };
+  taken_at_timestamp?: string;
+};
+
+type TikTokData = {
+  author_name: string;
+  author_unique_id: string;
+  title: string;
+};
+
+type ResponseData =
+  | { via: "vxtwitter"; data: TwitterData }
+  | { via: "ig-cookies"; data: InstagramCookiesData }
+  | { via: "ig"; data: InstagramData }
+  | { via: "btch-downloader"; platform: "tiktok"; data: TikTokData };
+
+export const getEmbed = (response: ResponseData) => {
+  const { via, data } = response;
+
+  if (via === "vxtwitter") {
     return {
       color: 0x000000,
-      title: data?.user_name, // name
-      url: `https://x.com/${data?.user_screen_name}`,
-      author: {
-        name: `@${data?.user_screen_name}`, // username
-      },
-      description: data?.text, // caption
-      thumbnail: {
-        url: data?.user_profile_image_url.replace("_normal", ""), // photo profile
-      },
-      timestamp: new Date(data?.date).toISOString(),
-      footer: {
-        text: "X / Twitter",
-      },
+      title: data.user_name,
+      url: `https://x.com/${data.user_screen_name}`,
+      author: { name: `@${data.user_screen_name}` },
+      description: data.text,
+      thumbnail: { url: data.user_profile_image_url.replace("_normal", "") },
+      timestamp: new Date(data.date).toISOString(),
+      footer: { text: "X / Twitter" },
     };
-  } else if (response.via === "ig-cookies") {
-    const name = data.user?.username ? `@${data.user?.username}` : null;
-    if (!name) return null;
+  }
+
+  if (via === "ig-cookies") {
+    if (!data.user?.username) return null;
     return {
       color: 0xc72784,
-      title: data.user?.full_name, // name
-      url: `https://instagram.com/${data.user?.username}`,
-      author: {
-        name, // username
-      },
-      description: data.caption?.text ?? null, // caption
-      thumbnail: {
-        url: data.user?.hd_profile_pic_url_info?.url ?? null, // photo profile
-      },
+      title: data.user.full_name,
+      url: `https://instagram.com/${data.user.username}`,
+      author: { name: `@${data.user.username}` },
+      description: data.caption?.text ?? null,
+      thumbnail: { url: data.user.hd_profile_pic_url_info?.url ?? null },
       timestamp: data.taken_at ? new Date(parseInt(data.taken_at + "000")).toISOString() : null,
-      footer: {
-        text: "Instagram",
-      },
+      footer: { text: "Instagram" },
       files: [],
     };
-  } else if (response.via === "ig") {
-    const caption = data?.data_to_caption?.edges[0]?.node?.text ?? null;
-    const username = data?.owner?.username ?? null;
-    const name = data?.owner?.full_name ?? null;
-    const profilePic = data?.owner?.profile_pic_url ?? null;
-    const takenAt = data?.taken_at_timestamp ? new Date(parseInt(data.taken_at_timestamp + "000")).toISOString() : null;
-    if (!username || !name || !takenAt) return null;
+  }
+
+  if (via === "ig") {
+    if (!data.owner?.username || !data.owner.full_name || !data.taken_at_timestamp) return null;
     return {
       color: 0xc72784,
-      title: name, // name
-      url: `https://instagram.com/${username}`,
-      author: {
-        name: `@${username}`, // username
-      },
-      description: caption ?? null, // caption
-      thumbnail: {
-        url: profilePic ?? null, // photo profile
-      },
-      timestamp: takenAt,
-      footer: {
-        text: "Instagram",
-      },
+      title: data.owner.full_name,
+      url: `https://instagram.com/${data.owner.username}`,
+      author: { name: `@${data.owner.username}` },
+      description: data.data_to_caption?.edges[0]?.node?.text ?? null,
+      thumbnail: { url: data.owner.profile_pic_url },
+      timestamp: new Date(parseInt(data.taken_at_timestamp + "000")).toISOString(),
+      footer: { text: "Instagram" },
     };
-  } else if (response.via === "btch-downloader" && response.platform === "tiktok") {
+  }
+
+  if (via === "btch-downloader" && response.platform === "tiktok") {
     return {
       color: 0xfe2858,
-      title: data?.author_name, // name
-      url: `https://tiktok.com/@${data?.author_unique_id}`,
-      author: {
-        name: `@${data?.author_unique_id}`, // username
-      },
-      description: data?.title, // caption
-      footer: {
-        text: "Tiktok",
-      },
+      title: data.author_name,
+      url: `https://tiktok.com/@${data.author_unique_id}`,
+      author: { name: `@${data.author_unique_id}` },
+      description: data.title,
+      footer: { text: "Tiktok" },
     };
   }
 
   return null;
 };
+

@@ -1,4 +1,4 @@
-import { ActivityType, Client, CommandInteraction, GatewayIntentBits, Message, type Interaction } from "discord.js";
+import { ActivityType, bold, Client, CommandInteraction, GatewayIntentBits, inlineCode, Message, type Interaction } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
@@ -62,6 +62,17 @@ client.on("messageCreate", async (message: Message) => {
     }
 
     await handleMessageLink(message, message.content, client);
+  }
+
+  if (message.author.id === config.MASTER_ID && message.content === 'dea server count') {
+    message.reply(`Dea is in ${client.guilds.cache.size} servers.`)
+  } else if (message.author.id === config.MASTER_ID && message.content === 'dea server list') {
+    let msg = ''
+    client.guilds.cache.forEach(guild => {
+      msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`
+    });
+
+    message.reply(msg)
   }
 });
 

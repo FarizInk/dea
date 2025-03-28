@@ -25,7 +25,8 @@ const basicGetter = async (url: string) => {
     const files = [];
     for (let i = 0; i < medias.length; i++) {
       const mediaUrl = medias[i];
-      files.push(await downloadFile(`${fileName}-${i}`, mediaUrl));
+      const filePath = await downloadFile(`${fileName}-${i}`, mediaUrl)
+      if (filePath) files.push(filePath);
     }
 
     return {
@@ -88,7 +89,7 @@ export const handleMessageLink = async (
 
   const doEmoji = "🫰";
   for (let i = 0; i < links.length; i++) {
-    const link:string|null = links[i] ?? null;
+    const link: string | null = links[i] ?? null;
     if (!link) continue;
 
     const isAllowed = allowedUrls.some((a) => link.includes(a));
@@ -114,7 +115,15 @@ export const handleMessageLink = async (
 
     const totalFiles = data.files.length;
     if (totalFiles <= 10) {
-      await send(message, { files: data.files, embeds: data.embed ? [data.embed] : [] });
+      await send(message, {
+        files: data.files,
+        embeds: data.embed ? [{
+          ...data.embed,
+          description: data.embed.description ?? undefined,
+          thumbnail: data.embed.thumbnail?.url ? { url: data.embed.thumbnail.url } : undefined,
+          timestamp: data.embed.timestamp ?? undefined
+        }] : []
+      });
       removeFiles(data.files);
       continue;
     } else if (totalFiles > 10 && message instanceof CommandInteraction) {
@@ -126,14 +135,21 @@ export const handleMessageLink = async (
       continue;
     }
 
-    let files = [];
+    let files: Exclude<typeof data.files[number], undefined>[] = [];
     for (let i = 0; i < totalFiles; i++) {
-      files.push(data.files[i]);
+      if (data.files[i]) files.push(data.files[i] as Exclude<typeof data.files[number], undefined>);
+
+      const embeds = data.embed ? [{
+        ...data.embed,
+        description: data.embed.description ?? undefined,
+        thumbnail: data.embed.thumbnail?.url ? { url: data.embed.thumbnail.url } : undefined,
+        timestamp: data.embed.timestamp ?? undefined
+      }] : []
 
       if (i + 1 === totalFiles) {
-        await send(message, { files, embeds: data.embed ? [data.embed] : [] });
+        await send(message, { files, embeds });
       } else if ((i + 1) % 10 === 0) {
-        await send(message, { files, embeds: data.embed ? [data.embed] : [] });
+        await send(message, { files, embeds });
         files = [];
       }
     }
