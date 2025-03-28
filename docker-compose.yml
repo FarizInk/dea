@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: dea
+    volumes:
+      - ./cache:/app/cache
+    env_file:
+      - .env
+    command: bun run start
