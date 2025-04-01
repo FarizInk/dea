@@ -1,6 +1,9 @@
 # Use official Bun image
 FROM oven/bun:latest
 
+# Install FFmpeg
+RUN apt-get update && apt-get install -y ffmpeg
+
 # Set working directory
 WORKDIR /app
 
