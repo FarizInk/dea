@@ -4,6 +4,7 @@ import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
 import { removeCacheFiles } from "./utils";
 import { handleMessageLink } from "./dea";
+import axios from "axios";
 
 const client = new Client({
   intents: [
@@ -34,6 +35,15 @@ client.once("ready", () => {
   removeCacheFiles();
 
   console.info("Discord bot is ready! 🤖");
+
+  async function pushToUptime() {
+    if (!config.UPTIME_API_URL) return null;
+    await axios.get(config.UPTIME_API_URL)
+  }
+
+  if (config.UPTIME_API_URL) {
+    setInterval(pushToUptime, 60000); // every 1 minute
+  }
 });
 
 client.on("guildCreate", async (guild) => {
@@ -64,10 +74,10 @@ client.on("messageCreate", async (message: Message) => {
     await handleMessageLink(message, message.content, client);
   }
 
-  if (message.author.id === config.MASTER_ID && message.content === 'dea server count') {
+  if (message.author.id === config.MASTER_ID && message.content === "dea server count") {
     message.reply(`Dea is in ${client.guilds.cache.size} servers.`)
-  } else if (message.author.id === config.MASTER_ID && message.content === 'dea server list') {
-    let msg = ''
+  } else if (message.author.id === config.MASTER_ID && message.content === "dea server list") {
+    let msg = ""
     client.guilds.cache.forEach(guild => {
       msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`
     });
