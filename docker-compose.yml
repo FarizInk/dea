@@ -7,3 +7,4 @@ services:
     env_file:
       - .env
     command: bun run start
+    restart: unless-stopped
