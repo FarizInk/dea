@@ -74,6 +74,16 @@ const removeFiles = (files: (string | null)[]) => {
   });
 };
 
+const isAllowedUrl = (link: string): boolean => {
+  // Direct match with allowed URL patterns
+  const directMatch = allowedUrls.some((a) => link.includes(a));
+  if (directMatch) return true;
+
+  // Special case for Instagram URLs with usernames
+  const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
+  return instagramRegex.test(link);
+}
+
 export const handleMessageLink = async (
   message: Message | CommandInteraction,
   content: string,
@@ -92,7 +102,8 @@ export const handleMessageLink = async (
     const link: string | null = links[i] ?? null;
     if (!link) continue;
 
-    const isAllowed = allowedUrls.some((a) => link.includes(a));
+    // const isAllowed = allowedUrls.some((a) => link.includes(a));
+    const isAllowed = isAllowedUrl(link);
     if (!isAllowed) continue;
 
     if (message instanceof Message) await message.react(doEmoji);
