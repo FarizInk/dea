@@ -1,9 +1,9 @@
-import { ActivityType, bold, Client, CommandInteraction, GatewayIntentBits, inlineCode, Message, type Interaction } from "discord.js";
+import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, CommandInteraction, GatewayIntentBits, inlineCode, Message, MessageFlags, quote, type Interaction } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
 import { removeCacheFiles } from "./utils";
-import { handleMessageLink } from "./dea";
+import { getLinks, handleMessageLink, isAllowedUrl } from "./dea";
 import axios from "axios";
 
 const client = new Client({
@@ -51,15 +51,52 @@ client.on("guildCreate", async (guild) => {
 });
 
 client.on("interactionCreate", async (interaction: Interaction) => {
-  if (!interaction.isCommand()) {
-    return;
-  }
+  if (interaction.isCommand()) {
+    const commandInteraction = interaction as CommandInteraction;
+    const { commandName } = commandInteraction;
 
-  const commandInteraction = interaction as CommandInteraction;
+    if (commands[commandName as keyof typeof commands]) {
+      commands[commandName as keyof typeof commands].execute(commandInteraction);
+    }
+  } else if (interaction.isButton()) {
+    const buttonInteraction = interaction as ButtonInteraction;
 
-  const { commandName } = commandInteraction;
-  if (commands[commandName as keyof typeof commands]) {
-    commands[commandName as keyof typeof commands].execute(commandInteraction);
+    if (buttonInteraction.customId === 'get-media') {
+      await buttonInteraction.message.edit({
+        components: []
+      });
+
+      const msgContent = buttonInteraction.message.content
+      const discordLinkRegex = /https:\/\/discord\.com\/channels\/\d+\/(?<channelId>\d+)\/(?<messageId>\d+)/;
+      const match = msgContent.match(discordLinkRegex);
+      if (match?.groups) {
+        const { channelId, messageId } = match.groups;
+        if (channelId && messageId) {
+          const channel = await client.channels.fetch(channelId);
+          if (channel?.isTextBased()) {
+            const message = await channel.messages.fetch(messageId);
+            await buttonInteraction.reply({
+              content: 'Wait a moment, I am getting the media...',
+              flags: MessageFlags.Ephemeral,
+            });
+            await handleMessageLink(message, message.content, client);
+          }
+        }
+      } else {
+        await buttonInteraction.reply({
+          content: "No valid Discord message link found.",
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+    } else if (buttonInteraction.customId === 'no') {
+      await buttonInteraction.message.edit({
+        components: []
+      });
+      await buttonInteraction.reply({
+        content: 'Ok, have a nice day!',
+        flags: MessageFlags.Ephemeral,
+      });
+    }
   }
 });
 
@@ -83,6 +120,37 @@ client.on("messageCreate", async (message: Message) => {
     });
 
     message.reply(msg)
+  }
+
+  let links = getLinks(message.content);
+  let isAllowed = false;
+  links.forEach((link) => {
+    const result = isAllowedUrl(link)
+    if (result) isAllowed = true;
+  })
+  if (isAllowed && !message.author.bot) {
+    if (message.guild) {
+      const no = new ButtonBuilder()
+        .setCustomId('no')
+        .setLabel('No')
+        .setStyle(ButtonStyle.Danger);
+
+      const yes = new ButtonBuilder()
+        .setCustomId('get-media')
+        .setLabel('Yes!')
+        .setStyle(ButtonStyle.Primary);
+
+      const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents([yes, no]);
+
+      const link = `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
+      await message.author.send({
+        content: `${quote(message.content)}\nWanna get media from [this message](${link})?`,
+        components: [row],
+      });
+    } else {
+      await handleMessageLink(message, message.content, client);
+    }
   }
 });
 

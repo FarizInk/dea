@@ -74,7 +74,7 @@ const removeFiles = (files: (string | null)[]) => {
   });
 };
 
-const isAllowedUrl = (link: string): boolean => {
+export const isAllowedUrl = (link: string): boolean => {
   // Direct match with allowed URL patterns
   const directMatch = allowedUrls.some((a) => link.includes(a));
   if (directMatch) return true;
@@ -102,7 +102,6 @@ export const handleMessageLink = async (
     const link: string | null = links[i] ?? null;
     if (!link) continue;
 
-    // const isAllowed = allowedUrls.some((a) => link.includes(a));
     const isAllowed = isAllowedUrl(link);
     if (!isAllowed) continue;
 
@@ -137,13 +136,6 @@ export const handleMessageLink = async (
       });
       removeFiles(data.files);
       continue;
-    } else if (totalFiles > 10 && message instanceof CommandInteraction) {
-      await send(message, {
-        files: data.files.slice(0, 10),
-        content: `> \`10/${data.files.length} media\` *sorry, i'm only provide 10 media with slash command, if you wanna get all media just type link and tag me, thank you.*`,
-      });
-      removeFiles(data.files);
-      continue;
     }
 
     let files: Exclude<typeof data.files[number], undefined>[] = [];
@@ -158,9 +150,9 @@ export const handleMessageLink = async (
       }] : []
 
       if (i + 1 === totalFiles) {
-        await send(message, { files, embeds });
+        message instanceof CommandInteraction ? await message.followUp({ files, embeds }) : await send(message, { files, embeds });
       } else if ((i + 1) % 10 === 0) {
-        await send(message, { files, embeds });
+        message instanceof CommandInteraction ? await message.followUp({ files, embeds }) : await send(message, { files, embeds });
         files = [];
       }
     }

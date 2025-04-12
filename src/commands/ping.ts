@@ -1,4 +1,4 @@
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { CommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
   .setName("ping")
@@ -12,5 +12,8 @@ export async function execute(interaction: CommandInteraction) {
   const apiLatency = interaction.client.ws.ping;
 
   // Reply with both latencies
-  return interaction.reply(`Pong! 🏓\nResponse Latency: ${responseLatency}ms\nAPI Latency: ${apiLatency}ms`);
+  return interaction.reply({
+    content: `Pong! 🏓\nResponse Latency: ${responseLatency}ms\nAPI Latency: ${apiLatency}ms`,
+    flags: MessageFlags.Ephemeral
+  });
 }
