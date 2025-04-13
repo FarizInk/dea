@@ -17,7 +17,8 @@ const basicGetter = async (url: string) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${config.H_TOKEN}`,
         },
-      }
+        timeout: 60000, // 60 seconds
+      },
     );
 
     const medias = data.medias;
