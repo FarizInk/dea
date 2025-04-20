@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "bun src/index.ts",
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun --watch src/index.ts",
+    "deploy:commands": "bun src/scripts/deploy-commands.ts"
   },
   "private": true,
   "devDependencies": {

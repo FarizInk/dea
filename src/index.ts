@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, CommandInteraction, inlineCode, Message, quote, type Interaction } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
-import { deployCommands } from "./deploy-commands";
+import { deployCommands } from "./utils/utils";
 import { kebabToCamel, removeCacheFiles } from "./utils/utils";
 import { handleMessageLink } from "./dea";
 import axios from "axios";
