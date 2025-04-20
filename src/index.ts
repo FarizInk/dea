@@ -1,19 +1,17 @@
-import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, CommandInteraction, GatewayIntentBits, inlineCode, Message, MessageFlags, quote, type Interaction } from "discord.js";
+import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, CommandInteraction, inlineCode, Message, quote, type Interaction } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
-import { removeCacheFiles } from "./utils";
-import { getLinks, handleMessageLink, isAllowedUrl } from "./dea";
+import { kebabToCamel, removeCacheFiles } from "./utils/utils";
+import { handleMessageLink } from "./dea";
 import axios from "axios";
+import { getLinks, isAllowedUrl } from "./utils/scrapper";
+import { botClient } from "./client";
+import { buttons } from "./buttons";
+import { btnGetMedia } from "./buttons/get-media";
+import { btnNo } from "./buttons/no";
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.MessageContent, // REQUIRED TO READ MESSAGE CONTENT
-  ],
-});
+const client = botClient;
 
 client.once("ready", () => {
   function setPresence() {
@@ -60,57 +58,51 @@ client.on("interactionCreate", async (interaction: Interaction) => {
     }
   } else if (interaction.isButton()) {
     const buttonInteraction = interaction as ButtonInteraction;
+    const { customId } = buttonInteraction;
 
-    if (buttonInteraction.customId === 'get-media') {
-      await buttonInteraction.message.edit({
-        components: []
-      });
-
-      const msgContent = buttonInteraction.message.content
-      const discordLinkRegex = /https:\/\/discord\.com\/channels\/\d+\/(?<channelId>\d+)\/(?<messageId>\d+)/;
-      const match = msgContent.match(discordLinkRegex);
-      if (match?.groups) {
-        const { channelId, messageId } = match.groups;
-        if (channelId && messageId) {
-          const channel = await client.channels.fetch(channelId);
-          if (channel?.isTextBased()) {
-            const message = await channel.messages.fetch(messageId);
-            await buttonInteraction.reply({
-              content: 'Wait a moment, I am getting the media...',
-              flags: MessageFlags.Ephemeral,
-            });
-            await handleMessageLink(message, message.content, client);
-          }
-        }
-      } else {
-        await buttonInteraction.reply({
-          content: "No valid Discord message link found.",
-          flags: MessageFlags.Ephemeral,
-        });
-      }
-    } else if (buttonInteraction.customId === 'no') {
-      await buttonInteraction.message.edit({
-        components: []
-      });
-      await buttonInteraction.reply({
-        content: 'Ok, have a nice day!',
-        flags: MessageFlags.Ephemeral,
-      });
+    if (buttons[kebabToCamel(customId) as keyof typeof buttons]) {
+      buttons[kebabToCamel(customId) as keyof typeof buttons].execute(buttonInteraction);
     }
   }
 });
 
 client.on("messageCreate", async (message: Message) => {
+  // Ignore messages sent by dea
+  if (client.user?.id && message.author.id === client.user.id) return;
+
+  // action if dea mentioned
   if (client.user && message.mentions.has(client.user.id)) {
     const repliedId = message?.reference?.messageId ?? null;
     if (repliedId) {
       const msg = await message.channel.messages.fetch(repliedId);
       await handleMessageLink(msg, msg.content, client);
+    } else {
+      await handleMessageLink(message, message.content, client);
     }
+  } else {
+    let links = getLinks(message.content);
+    let isAllowed = false;
+    links.forEach((link) => {
+      const result = isAllowedUrl(link)
+      if (result) isAllowed = true;
+    })
+    if (isAllowed && !message.author.bot) {
+      if (message.guild) {
+        const row = new ActionRowBuilder<ButtonBuilder>()
+          .addComponents([btnGetMedia, btnNo]);
 
-    await handleMessageLink(message, message.content, client);
+        const link = `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
+        await message.author.send({
+          content: `${quote(message.content)}\nWanna get media from [this message](${link})?`,
+          components: [row],
+        });
+      } else {
+        await handleMessageLink(message, message.content, client);
+      }
+    }
   }
 
+  // message from master
   if (message.author.id === config.MASTER_ID && message.content === "dea server count") {
     message.reply(`Dea is in ${client.guilds.cache.size} servers.`)
   } else if (message.author.id === config.MASTER_ID && message.content === "dea server list") {
@@ -120,37 +112,6 @@ client.on("messageCreate", async (message: Message) => {
     });
 
     message.reply(msg)
-  }
-
-  let links = getLinks(message.content);
-  let isAllowed = false;
-  links.forEach((link) => {
-    const result = isAllowedUrl(link)
-    if (result) isAllowed = true;
-  })
-  if (isAllowed && !message.author.bot) {
-    if (message.guild) {
-      const no = new ButtonBuilder()
-        .setCustomId('no')
-        .setLabel('No')
-        .setStyle(ButtonStyle.Danger);
-
-      const yes = new ButtonBuilder()
-        .setCustomId('get-media')
-        .setLabel('Yes!')
-        .setStyle(ButtonStyle.Primary);
-
-      const row = new ActionRowBuilder<ButtonBuilder>()
-        .addComponents([yes, no]);
-
-      const link = `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
-      await message.author.send({
-        content: `${quote(message.content)}\nWanna get media from [this message](${link})?`,
-        components: [row],
-      });
-    } else {
-      await handleMessageLink(message, message.content, client);
-    }
   }
 });
 

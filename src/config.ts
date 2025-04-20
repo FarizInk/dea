@@ -1,6 +1,6 @@
-const { DISCORD_TOKEN, DISCORD_CLIENT_ID, MASTER_ID, H_URL, H_TOKEN, UPTIME_API_URL } = process.env;
+const { DISCORD_TOKEN, DISCORD_CLIENT_ID, MASTER_ID, UPTIME_API_URL } = process.env;
 
-if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID || !MASTER_ID || !H_URL || !H_TOKEN) {
+if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID || !MASTER_ID) {
   throw new Error("Missing environment variables");
 }
 
@@ -8,8 +8,6 @@ export const config = {
   DISCORD_TOKEN,
   DISCORD_CLIENT_ID,
   MASTER_ID,
-  H_URL,
-  H_TOKEN,
   UPTIME_API_URL
 };
 

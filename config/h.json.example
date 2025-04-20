@@ -1,0 +1,14 @@
+[
+    {
+        "baseUrl": "",
+        "scrapperPath": "/api/full",
+        "statusPath": "/api/status",
+        "token": ""
+    },
+    {
+        "baseUrl": "",
+        "scrapperPath": "/api/full",
+        "statusPath": "/api/status",
+        "token": ""
+    }
+]

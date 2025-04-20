@@ -3,7 +3,7 @@ import { renameSync } from "fs";
 import * as fs from "fs";
 import * as stream from "stream";
 import { promisify } from "util";
-import { mimes } from "./config";
+import { mimes } from "../config";
 import axios, { AxiosError } from "axios";
 import * as path from "path";
 
@@ -212,3 +212,6 @@ export const getEmbed = (response: ResponseData) => {
   return null;
 };
 
+export function kebabToCamel(str: string) {
+  return str.replace(/-(\w)/g, (_, c) => c.toUpperCase());
+}
