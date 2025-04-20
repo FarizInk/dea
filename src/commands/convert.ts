@@ -5,18 +5,20 @@ import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 export const data = new SlashCommandBuilder()
   .setName("convert")
   .setDescription("Convert Currency")
-  .addStringOption(option =>
-    option.setName('from')
-      .setDescription('From Currency Code')
-      .setRequired(true))
-  .addStringOption(option =>
-    option.setName('to')
-      .setDescription('To Currency Code')
-      .setRequired(true))
-  .addIntegerOption((option) => option
-    .setName("amount")
-    .setDescription("write the amount without comma and dot")
-    .setRequired(true)
+  .addStringOption((option) =>
+    option
+      .setName("from")
+      .setDescription("From Currency Code")
+      .setRequired(true),
+  )
+  .addStringOption((option) =>
+    option.setName("to").setDescription("To Currency Code").setRequired(true),
+  )
+  .addIntegerOption((option) =>
+    option
+      .setName("amount")
+      .setDescription("write the amount without comma and dot")
+      .setRequired(true),
   );
 
 export async function execute(interaction: CommandInteraction) {
@@ -35,16 +37,16 @@ export async function execute(interaction: CommandInteraction) {
     const { data } = await axios.get(url);
 
     const $ = load(data);
-    const baseElement = "div[data-testid=conversion] > div > div > div"
-    const textFrom = $(`${baseElement} > p:nth-child(1)`).text()
-    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span`).text()
-    const textTo = $(`${baseElement} > p:nth-child(2)`).text()
+    const baseElement = "div[data-testid=conversion] > div > div > div";
+    const textFrom = $(`${baseElement} > p:nth-child(1)`).text();
+    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span`).text();
+    const textTo = $(`${baseElement} > p:nth-child(2)`).text();
 
-    return interaction.reply(`${textFrom} ${textTo.replace(fadedDigits, '').trim()}`);
+    return interaction.reply(
+      `${textFrom} ${textTo.replace(fadedDigits, "").trim()}`,
+    );
   } catch (error) {
-    console.error(error)
-    return interaction.reply('Something Wrong 😞');
+    console.error(error);
+    return interaction.reply("Something Wrong 😞");
   }
-
-
 }

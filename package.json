@@ -5,11 +5,19 @@
   "scripts": {
     "start": "bun src/index.ts",
     "dev": "bun --watch src/index.ts",
-    "deploy:commands": "bun src/scripts/deploy-commands.ts"
+    "deploy:commands": "bun src/scripts/deploy-commands.ts",
+    "check:lint-format": "bun src/scripts/check-lint-format.ts",
+    "format": "bun src/scripts/format.ts"
   },
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.30.1",
+    "@typescript-eslint/parser": "^8.30.1",
+    "eslint": "^9.25.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "prettier": "^3.5.3"
   },
   "peerDependencies": {
     "typescript": "^5"

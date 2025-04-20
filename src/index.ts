@@ -1,4 +1,14 @@
-import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, CommandInteraction, inlineCode, Message, quote, type Interaction } from "discord.js";
+import {
+  ActionRowBuilder,
+  ActivityType,
+  ButtonBuilder,
+  ButtonInteraction,
+  CommandInteraction,
+  inlineCode,
+  Message,
+  quote,
+  type Interaction,
+} from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./utils/utils";
@@ -36,7 +46,7 @@ client.once("ready", () => {
 
   async function pushToUptime() {
     if (!config.UPTIME_API_URL) return null;
-    await axios.get(config.UPTIME_API_URL)
+    await axios.get(config.UPTIME_API_URL);
   }
 
   if (config.UPTIME_API_URL) {
@@ -54,14 +64,18 @@ client.on("interactionCreate", async (interaction: Interaction) => {
     const { commandName } = commandInteraction;
 
     if (commands[commandName as keyof typeof commands]) {
-      commands[commandName as keyof typeof commands].execute(commandInteraction);
+      commands[commandName as keyof typeof commands].execute(
+        commandInteraction,
+      );
     }
   } else if (interaction.isButton()) {
     const buttonInteraction = interaction as ButtonInteraction;
     const { customId } = buttonInteraction;
 
     if (buttons[kebabToCamel(customId) as keyof typeof buttons]) {
-      buttons[kebabToCamel(customId) as keyof typeof buttons].execute(buttonInteraction);
+      buttons[kebabToCamel(customId) as keyof typeof buttons].execute(
+        buttonInteraction,
+      );
     }
   }
 });
@@ -83,13 +97,15 @@ client.on("messageCreate", async (message: Message) => {
     let links = getLinks(message.content);
     let isAllowed = false;
     links.forEach((link) => {
-      const result = isAllowedUrl(link)
+      const result = isAllowedUrl(link);
       if (result) isAllowed = true;
-    })
+    });
     if (isAllowed && !message.author.bot) {
       if (message.guild) {
-        const row = new ActionRowBuilder<ButtonBuilder>()
-          .addComponents([btnGetMedia, btnNo]);
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
+          btnGetMedia,
+          btnNo,
+        ]);
 
         const link = `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
         await message.author.send({
@@ -103,15 +119,21 @@ client.on("messageCreate", async (message: Message) => {
   }
 
   // message from master
-  if (message.author.id === config.MASTER_ID && message.content === "dea server count") {
-    message.reply(`Dea is in ${client.guilds.cache.size} servers.`)
-  } else if (message.author.id === config.MASTER_ID && message.content === "dea server list") {
-    let msg = ""
-    client.guilds.cache.forEach(guild => {
-      msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`
+  if (
+    message.author.id === config.MASTER_ID &&
+    message.content === "dea server count"
+  ) {
+    message.reply(`Dea is in ${client.guilds.cache.size} servers.`);
+  } else if (
+    message.author.id === config.MASTER_ID &&
+    message.content === "dea server list"
+  ) {
+    let msg = "";
+    client.guilds.cache.forEach((guild) => {
+      msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`;
     });
 
-    message.reply(msg)
+    message.reply(msg);
   }
 });
 

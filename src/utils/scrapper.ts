@@ -12,18 +12,20 @@ interface Config {
 type ConfigArray = Config[];
 
 const configPath = "./config/h.json";
-const configFile = Bun.file(configPath)
+const configFile = Bun.file(configPath);
 
 async function getScrapperConfig() {
-  const isExist = await configFile.exists()
+  const isExist = await configFile.exists();
   if (!isExist) throw new Error("Please Set Config!");
-  const configs: ConfigArray = await configFile.json()
+  const configs: ConfigArray = await configFile.json();
 
   for (let i = 0; i < configs.length; i++) {
     const config: Config | undefined = configs[i];
     if (!config) continue;
     try {
-      const { data } = await axios.get(`${config.baseUrl}/${config.statusPath}`)
+      const { data } = await axios.get(
+        `${config.baseUrl}/${config.statusPath}`,
+      );
       if (data.status === "ok") {
         return {
           url: `${config.baseUrl}/${config.scrapperPath}`,
@@ -37,7 +39,7 @@ async function getScrapperConfig() {
     }
   }
 
-  throw new Error("No Scrapper Instances active!")
+  throw new Error("No Scrapper Instances active!");
 }
 
 export const basicGetter = async (url: string) => {
@@ -63,7 +65,7 @@ export const basicGetter = async (url: string) => {
     const files = [];
     for (let i = 0; i < medias.length; i++) {
       const mediaUrl = medias[i];
-      const filePath = await downloadFile(`${fileName}-${i}`, mediaUrl)
+      const filePath = await downloadFile(`${fileName}-${i}`, mediaUrl);
       if (filePath) files.push(filePath);
     }
 
@@ -100,6 +102,7 @@ export const isAllowedUrl = (link: string): boolean => {
   if (directMatch) return true;
 
   // Special case for Instagram URLs with usernames
-  const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
+  const instagramRegex =
+    /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
   return instagramRegex.test(link);
-}
+};

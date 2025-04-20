@@ -15,7 +15,7 @@ const commandsData = Object.values(commands).map((command) => command.data);
 const rest = new REST({ version: "10" }).setToken(config.DISCORD_TOKEN);
 
 type DeployCommandsProps = {
-  guildId: null|string;
+  guildId: null | string;
 };
 
 export async function deployCommands({ guildId = null }: DeployCommandsProps) {
@@ -27,15 +27,12 @@ export async function deployCommands({ guildId = null }: DeployCommandsProps) {
         Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId),
         {
           body: commandsData,
-        }
+        },
       );
     } else {
-      await rest.put(
-        Routes.applicationCommands(config.DISCORD_CLIENT_ID),
-        {
-          body: commandsData,
-        }
-      )
+      await rest.put(Routes.applicationCommands(config.DISCORD_CLIENT_ID), {
+        body: commandsData,
+      });
     }
 
     console.info("Successfully reloaded application (/) commands.");
@@ -47,19 +44,23 @@ export async function deployCommands({ guildId = null }: DeployCommandsProps) {
 export const downloadFile = async (
   name: string,
   url: string,
-  ext: string | null = null
+  ext: string | null = null,
 ) => {
   const finishedDownload = promisify(stream.finished);
 
   const extensions = [".png", ".jpg", ".jpeg", ".mp4", ".webp"];
   let extension: string | null = null;
   extensions.forEach((e) =>
-    extension === null && url.includes(e) ? (extension = e) : null
+    extension === null && url.includes(e) ? (extension = e) : null,
   );
 
   if (extension === null) {
     const response = await fetch(url);
-    const filename = response.headers.get("content-disposition")?.split("filename=")[1]?.replace(/"/g, "") ?? null;
+    const filename =
+      response.headers
+        .get("content-disposition")
+        ?.split("filename=")[1]
+        ?.replace(/"/g, "") ?? null;
     for (const key in mimes) {
       const mime = mimes[key];
       if (mime === filename?.split(".").pop()) {
@@ -90,7 +91,9 @@ export const downloadFile = async (
 
     return filePath;
   } catch (error) {
-    console.error(`error download file: ${url}, ${error instanceof AxiosError ? error.response?.data : error}`);
+    console.error(
+      `error download file: ${url}, ${error instanceof AxiosError ? error.response?.data : error}`,
+    );
     return null;
   }
 };
@@ -215,14 +218,21 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.user.username}` },
       description: data.caption?.text ?? null,
       thumbnail: { url: data.user.hd_profile_pic_url_info?.url ?? null },
-      timestamp: data.taken_at ? new Date(parseInt(data.taken_at + "000")).toISOString() : null,
+      timestamp: data.taken_at
+        ? new Date(parseInt(data.taken_at + "000")).toISOString()
+        : null,
       footer: { text: "Instagram" },
       files: [],
     };
   }
 
   if (via === "ig") {
-    if (!data.owner?.username || !data.owner.full_name || !data.taken_at_timestamp) return null;
+    if (
+      !data.owner?.username ||
+      !data.owner.full_name ||
+      !data.taken_at_timestamp
+    )
+      return null;
     return {
       color: 0xc72784,
       title: data.owner.full_name,
@@ -230,7 +240,9 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.owner.username}` },
       description: data.data_to_caption?.edges[0]?.node?.text ?? null,
       thumbnail: { url: data.owner.profile_pic_url },
-      timestamp: new Date(parseInt(data.taken_at_timestamp + "000")).toISOString(),
+      timestamp: new Date(
+        parseInt(data.taken_at_timestamp + "000"),
+      ).toISOString(),
       footer: { text: "Instagram" },
     };
   }

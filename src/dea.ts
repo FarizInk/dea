@@ -1,7 +1,18 @@
-import { Client, CommandInteraction, Message, MessagePayload, type InteractionEditReplyOptions } from "discord.js";
+import {
+  Client,
+  CommandInteraction,
+  Message,
+  MessagePayload,
+  type InteractionEditReplyOptions,
+} from "discord.js";
 import { compressVideo } from "./utils/utils";
 import * as fs from "fs";
-import { basicGetter, getLinks, isAllowedUrl, removeFiles } from "./utils/scrapper";
+import {
+  basicGetter,
+  getLinks,
+  isAllowedUrl,
+  removeFiles,
+} from "./utils/scrapper";
 
 const removeEmoji = async (client: Client, message: Message, emoji: string) => {
   try {
@@ -13,7 +24,10 @@ const removeEmoji = async (client: Client, message: Message, emoji: string) => {
   }
 };
 
-const send = async (message: Message | CommandInteraction, payload: string | MessagePayload | InteractionEditReplyOptions) => {
+const send = async (
+  message: Message | CommandInteraction,
+  payload: string | MessagePayload | InteractionEditReplyOptions,
+) => {
   if (message instanceof Message) {
     await message.reply(payload as string | MessagePayload);
   } else if (message instanceof CommandInteraction) {
@@ -24,7 +38,7 @@ const send = async (message: Message | CommandInteraction, payload: string | Mes
 export const handleMessageLink = async (
   message: Message | CommandInteraction,
   content: string,
-  client: Client | null = null
+  client: Client | null = null,
 ) => {
   let links = getLinks(content);
 
@@ -64,32 +78,55 @@ export const handleMessageLink = async (
     if (totalFiles <= 10) {
       await send(message, {
         files: data.files,
-        embeds: data.embed ? [{
-          ...data.embed,
-          description: data.embed.description ?? undefined,
-          thumbnail: data.embed.thumbnail?.url ? { url: data.embed.thumbnail.url } : undefined,
-          timestamp: data.embed.timestamp ?? undefined
-        }] : []
+        embeds: data.embed
+          ? [
+              {
+                ...data.embed,
+                description: data.embed.description ?? undefined,
+                thumbnail: data.embed.thumbnail?.url
+                  ? { url: data.embed.thumbnail.url }
+                  : undefined,
+                timestamp: data.embed.timestamp ?? undefined,
+              },
+            ]
+          : [],
       });
       removeFiles(data.files);
       continue;
     }
 
-    let files: Exclude<typeof data.files[number], undefined>[] = [];
+    let files: Exclude<(typeof data.files)[number], undefined>[] = [];
     for (let i = 0; i < totalFiles; i++) {
-      if (data.files[i]) files.push(data.files[i] as Exclude<typeof data.files[number], undefined>);
+      if (data.files[i])
+        files.push(
+          data.files[i] as Exclude<(typeof data.files)[number], undefined>,
+        );
 
-      const embeds = data.embed ? [{
-        ...data.embed,
-        description: data.embed.description ?? undefined,
-        thumbnail: data.embed.thumbnail?.url ? { url: data.embed.thumbnail.url } : undefined,
-        timestamp: data.embed.timestamp ?? undefined
-      }] : []
+      const embeds = data.embed
+        ? [
+            {
+              ...data.embed,
+              description: data.embed.description ?? undefined,
+              thumbnail: data.embed.thumbnail?.url
+                ? { url: data.embed.thumbnail.url }
+                : undefined,
+              timestamp: data.embed.timestamp ?? undefined,
+            },
+          ]
+        : [];
 
       if (i + 1 === totalFiles) {
-        message instanceof CommandInteraction ? await message.followUp({ files, embeds }) : await send(message, { files, embeds });
+        if (message instanceof CommandInteraction) {
+          await message.followUp({ files, embeds });
+        } else {
+          await send(message, { files, embeds });
+        }
       } else if ((i + 1) % 10 === 0) {
-        message instanceof CommandInteraction ? await message.followUp({ files, embeds }) : await send(message, { files, embeds });
+        if (message instanceof CommandInteraction) {
+          await message.followUp({ files, embeds });
+        } else {
+          await send(message, { files, embeds });
+        }
         files = [];
       }
     }
