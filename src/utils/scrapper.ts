@@ -1,5 +1,6 @@
 import axios from "axios";
-import { downloadFile, getEmbed } from "./utils";
+import { downloadFile } from "./utils";
+import { parseEmbed } from "./parser";
 import { allowedUrls } from "../config";
 import * as fs from "fs";
 
@@ -13,6 +14,17 @@ type ConfigArray = Config[];
 
 const configPath = "./config/h.json";
 const configFile = Bun.file(configPath);
+
+export const isAllowedUrl = (link: string): boolean => {
+  // Direct match with allowed URL patterns
+  const directMatch = allowedUrls.some((a) => link.includes(a));
+  if (directMatch) return true;
+
+  // Special case for Instagram URLs with usernames
+  const instagramRegex =
+    /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
+  return instagramRegex.test(link);
+};
 
 async function getScrapperConfig() {
   const isExist = await configFile.exists();
@@ -60,18 +72,18 @@ export const basicGetter = async (url: string) => {
       },
     );
 
-    const medias = data.medias;
+    const medias = data.medias ?? [];
     const fileName = Math.floor(Date.now() / 1000).toString();
     const files = [];
     for (let i = 0; i < medias.length; i++) {
-      const mediaUrl = medias[i];
+      const mediaUrl = medias?.[i] ?? null;
       const filePath = await downloadFile(`${fileName}-${i}`, mediaUrl);
       if (filePath) files.push(filePath);
     }
 
     return {
       files,
-      embed: getEmbed(data),
+      embed: parseEmbed(data),
     };
   } catch (error) {
     console.error(`error getting info: ${url}`);
@@ -83,26 +95,15 @@ export const basicGetter = async (url: string) => {
   }
 };
 
-export const getLinks = (message: string) => {
+export function getLinks(message: string) {
   const msgHttp: Array<string> = message.match(/\bhttp?:\/\/\S+/gi) ?? [];
   const msgHttps: Array<string> = message.match(/\bhttps?:\/\/\S+/gi) ?? [];
 
   return msgHttp.concat(msgHttps);
-};
+}
 
-export const removeFiles = (files: (string | null)[]) => {
+export async function removeFiles(files: (string | null)[]) {
   files.forEach((file) => {
     if (file) fs.unlink(file, () => null);
   });
-};
-
-export const isAllowedUrl = (link: string): boolean => {
-  // Direct match with allowed URL patterns
-  const directMatch = allowedUrls.some((a) => link.includes(a));
-  if (directMatch) return true;
-
-  // Special case for Instagram URLs with usernames
-  const instagramRegex =
-    /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
-  return instagramRegex.test(link);
-};
+}

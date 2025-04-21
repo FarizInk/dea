@@ -1,25 +1,18 @@
 import {
-  ActionRowBuilder,
   ActivityType,
-  ButtonBuilder,
   ButtonInteraction,
   CommandInteraction,
   inlineCode,
   Message,
-  quote,
   type Interaction,
 } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
-import { deployCommands } from "./utils/utils";
-import { kebabToCamel, removeCacheFiles } from "./utils/utils";
-import { handleMessageLink } from "./dea";
+import { deployCommands, kebabToCamel, removeCacheFiles } from "./utils/utils";
+import { actionWhenFoundUrl, handleMessageLink } from "./dea";
 import axios from "axios";
-import { getLinks, isAllowedUrl } from "./utils/scrapper";
 import { botClient } from "./client";
 import { buttons } from "./buttons";
-import { btnGetMedia } from "./buttons/get-media";
-import { btnNo } from "./buttons/no";
 
 const client = botClient;
 
@@ -89,51 +82,26 @@ client.on("messageCreate", async (message: Message) => {
     const repliedId = message?.reference?.messageId ?? null;
     if (repliedId) {
       const msg = await message.channel.messages.fetch(repliedId);
-      await handleMessageLink(msg, msg.content, client);
-    } else {
-      await handleMessageLink(message, message.content, client);
+      await handleMessageLink(msg, msg.content);
     }
-  } else {
-    let links = getLinks(message.content);
-    let isAllowed = false;
-    links.forEach((link) => {
-      const result = isAllowedUrl(link);
-      if (result) isAllowed = true;
-    });
-    if (isAllowed && !message.author.bot) {
-      if (message.guild) {
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents([
-          btnGetMedia,
-          btnNo,
-        ]);
 
-        const link = `https://discord.com/channels/${message.guild.id}/${message.channel.id}/${message.id}`;
-        await message.author.send({
-          content: `${quote(message.content)}\nWanna get media from [this message](${link})?`,
-          components: [row],
-        });
-      } else {
-        await handleMessageLink(message, message.content, client);
-      }
-    }
+    await handleMessageLink(message, message.content);
+  } else {
+    await actionWhenFoundUrl(message);
   }
 
   // message from master
-  if (
-    message.author.id === config.MASTER_ID &&
-    message.content === "dea server count"
-  ) {
-    message.reply(`Dea is in ${client.guilds.cache.size} servers.`);
-  } else if (
-    message.author.id === config.MASTER_ID &&
-    message.content === "dea server list"
-  ) {
-    let msg = "";
-    client.guilds.cache.forEach((guild) => {
-      msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`;
-    });
+  if (message.author.id === config.MASTER_ID) {
+    if (message.content === "dea server count") {
+      message.reply(`Dea is in ${client.guilds.cache.size} servers.`);
+    } else if (message.content === "dea server list") {
+      let msg = "";
+      client.guilds.cache.forEach((guild) => {
+        msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`;
+      });
 
-    message.reply(msg);
+      message.reply(msg);
+    }
   }
 });
 
