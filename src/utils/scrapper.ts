@@ -1,6 +1,6 @@
 import axios from "axios";
 import { downloadFile } from "./utils";
-import { parseEmbed } from "./parser";
+import { generateEmbed } from "./parser";
 import { allowedUrls } from "../config";
 import * as fs from "fs";
 
@@ -83,7 +83,7 @@ export const basicGetter = async (url: string) => {
 
     return {
       files,
-      embed: parseEmbed(data),
+      embed: generateEmbed(data),
     };
   } catch (error) {
     console.error(`error getting info: ${url}`);
