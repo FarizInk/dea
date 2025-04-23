@@ -9,11 +9,11 @@ import type { ThreadsGraphQLResponse } from "../types/threads-graphql";
 import type { BskxResponse } from "../types/bluesky";
 
 export function generateEmbed(response: Response): EmbedBuilder | null {
-  const { via, data }: Response = response;
+  const { metadata, data }: Response = response;
   if (!data) return null;
 
   try {
-    if (via === "fxtwitter") {
+    if (metadata.provider_data === "fxtwitter") {
       const item = data as FxTwitterResponse;
 
       return new EmbedBuilder()
@@ -25,7 +25,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setThumbnail(item.author.avatar_url)
         .setTimestamp(new Date(item.created_at))
         .setFooter({ text: "X / Twitter" });
-    } else if (via === "vxtwitter") {
+    } else if (metadata.provider_data === "vxtwitter") {
       const item = data as VxTwitterResponse;
 
       return new EmbedBuilder()
@@ -37,7 +37,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setThumbnail(item.user_profile_image_url.replace("_normal", ""))
         .setTimestamp(new Date(item.date))
         .setFooter({ text: "X / Twitter" });
-    } else if (via === "instagram-graphql") {
+    } else if (metadata.provider_data === "instagram-graphql") {
       const item = data as InstagramGraphQLResponse;
 
       if (
@@ -62,7 +62,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
             : null,
         )
         .setFooter({ text: "Instagram" });
-    } else if (via === "instagram-story-client") {
+    } else if (metadata.provider_data === "instagram-story-client") {
       const item = data as InstagramStoryClientResponse;
 
       return new EmbedBuilder()
@@ -75,7 +75,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
           item.taken_at ? new Date(parseInt(item.taken_at + "000")) : null,
         )
         .setFooter({ text: "Instagram Story" });
-    } else if (via === "tiktok-parser") {
+    } else if (metadata.provider_data === "tiktok-parser") {
       const item = data as TikTokParserResponse;
 
       return new EmbedBuilder()
@@ -89,7 +89,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
           item.createTime ? new Date(parseInt(item.createTime + "000")) : null,
         )
         .setFooter({ text: "TikTok" });
-    } else if (via === "threads-graphql") {
+    } else if (metadata.provider_data === "threads-graphql") {
       const item = data as ThreadsGraphQLResponse;
 
       return new EmbedBuilder()
@@ -103,7 +103,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
           item.taken_at ? new Date(parseInt(item.taken_at + "000")) : null,
         )
         .setFooter({ text: "Threads" });
-    } else if (via === "bskx") {
+    } else if (metadata.provider_data === "bskx") {
       const item = data as BskxResponse;
 
       return new EmbedBuilder()
@@ -123,7 +123,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
   } catch (error) {
     console.error("Error generate embed", error);
   }
-  // else if (via === "btch-downloader" && response.platform === "tiktok") {
+  // else if (metadata.provider_data === "btch-downloader" && response.platform === "tiktok") {
   //   return {
   //     color: 0xfe2858,
   //     title: data.author_name,

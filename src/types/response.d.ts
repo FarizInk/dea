@@ -6,19 +6,20 @@ import type { ThreadsGraphQLResponse } from "./threads-graphql";
 import type { TikTokParserResponse } from "./tiktok";
 import type { VxTwitterResponse } from "./vxtwitter";
 
+type ProviderType =
+  | string
+  | null
+  | "cobalt"
+  | "fxtwitter"
+  | "vxtwitter"
+  | "instagram-graphql"
+  | "instagram-story-client"
+  | "threads-graphql"
+  | "bskx"
+  | "tiktok-parser"
+  | "btch-downloader";
+
 export interface Response {
-  via:
-    | string
-    | null
-    | "cobalt"
-    | "fxtwitter"
-    | "vxtwitter"
-    | "instagram-graphql"
-    | "instagram-story-client"
-    | "threads-graphql"
-    | "bskx"
-    | "tiktok-parser"
-    | "btch-downloader";
   platform:
     | string
     | "unknown"
@@ -38,4 +39,8 @@ export interface Response {
     | VxTwitterResponse
     | TikTokParserResponse
     | BskxResponse;
+  metadata: {
+    provider_media: ProviderType;
+    provider_data: ProviderType;
+  };
 }

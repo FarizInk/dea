@@ -33,7 +33,7 @@ async function removeEmoji(message: Message, emoji: string) {
 function getImageEmbed(files: string[]) {
   let file: string | null = null;
 
-  [...files].reverse().forEach((path) => {
+  [...files].forEach((path) => {
     if (file) return;
     if (isImageOrVideo(path) === "image") file = path;
   });
