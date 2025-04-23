@@ -111,8 +111,8 @@ export async function handleMessageLink(
     }
 
     if (totalFiles <= 10) {
-      const imageEmbed = getImageEmbed(data.files);
-      if (imageEmbed) data.embed?.setImage(imageEmbed);
+      // const imageEmbed = getImageEmbed(data.files);
+      // if (imageEmbed) data.embed?.setImage(imageEmbed);
 
       await send(message, {
         files: data.files,
@@ -130,8 +130,8 @@ export async function handleMessageLink(
         );
 
       if (i + 1 === totalFiles) {
-        const imageEmbed = getImageEmbed(data.files);
-        if (imageEmbed) data.embed?.setImage(imageEmbed);
+        // const imageEmbed = getImageEmbed(data.files);
+        // if (imageEmbed) data.embed?.setImage(imageEmbed);
 
         const embeds = data.embed ? [data.embed] : [];
 
