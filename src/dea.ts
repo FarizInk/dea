@@ -1,13 +1,15 @@
 import {
   ActionRowBuilder,
+  bold,
   ButtonBuilder,
   CommandInteraction,
+  italic,
   Message,
   MessagePayload,
   quote,
   type InteractionEditReplyOptions,
 } from "discord.js";
-import { compressVideo, isImageOrVideo } from "./utils/utils";
+import { compressVideo, isImageOrVideo, removeEnding } from "./utils/utils";
 import * as fs from "fs";
 import {
   basicGetter,
@@ -18,6 +20,8 @@ import {
 import { btnGetMedia } from "./buttons/get-media";
 import { btnNo } from "./buttons/no";
 import { botClient } from "./client";
+import axios from "axios";
+import { load } from "cheerio";
 
 async function removeEmoji(message: Message, emoji: string) {
   try {
@@ -181,4 +185,82 @@ export async function actionWhenFoundUrl(message: Message) {
       await handleMessageLink(message, message.content);
     }
   }
+}
+
+export async function handleMessageConvert(message: Message, content: string) {
+  const params = content
+    .replace("convert", "")
+    .replace(" to ", " ")
+    .trim()
+    .split(" ");
+  if (params.length === 3) {
+    const data = await convertCurrency(
+      params?.[0] ?? "",
+      params?.[1] ?? "",
+      params?.[2] ?? "",
+    );
+    console.log(data);
+
+    if (data) {
+      await message.reply(
+        `${bold(data.from.nominal?.toString() ?? "")} ${bold(data.from.currency)} = ${bold(removeEnding(data.to.nominal.toString(), data.to.fadedDigits))}${data.to.fadedDigits ? italic(data.to.fadedDigits) : ""} ${bold(data.to.currency)}`,
+      );
+    }
+  }
+}
+
+type CurrencyConversion = {
+  from: {
+    nominal: number | string;
+    currency: string;
+  };
+  to: {
+    nominal: number | string;
+    currency: string;
+    fadedDigits: string;
+  };
+};
+
+export async function convertCurrency(
+  amount: string | number,
+  from: string,
+  to: string,
+): Promise<CurrencyConversion | null> {
+  try {
+    const url = `https://www.xe.com/currencyconverter/convert/?Amount=${amount}&From=${from.toUpperCase()}&To=${to.toUpperCase()}`;
+    const { data } = await axios.get(url);
+
+    const $ = load(data);
+    const baseElement = "div[data-testid=conversion] > div > div > div";
+    const textFrom = $(`${baseElement} > p:nth-child(1)`).text();
+    const nominalFrom = textFrom.split(" ")?.[0]?.trim() ?? "";
+    const currencyFrom = textFrom
+      .split(" ")
+      .slice(1)
+      .join(" ")
+      .replace("=", "")
+      .trim();
+    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span.faded-digits`)
+      .text()
+      .trim();
+    const textTo = $(`${baseElement} > p:nth-child(2)`).text();
+    const nominalTo = textTo.split(" ")?.[0]?.trim() ?? "";
+    const currencyTo = textTo.split(" ").slice(1).join(" ");
+
+    return {
+      from: {
+        nominal: nominalFrom,
+        currency: currencyFrom,
+      },
+      to: {
+        nominal: nominalTo,
+        currency: currencyTo,
+        fadedDigits,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+  }
+
+  return null;
 }

@@ -172,3 +172,10 @@ export function isImageOrVideo(filename: string) {
   if (videoExtensions.includes(`.${ext}`)) return "video";
   return "unknown";
 }
+
+export function removeEnding(str: string, ending: string) {
+  if (ending !== "" && str.endsWith(ending)) {
+    return str.slice(0, -ending.length);
+  }
+  return str;
+}

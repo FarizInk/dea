@@ -1,5 +1,3 @@
-import axios from "axios";
-import { load } from "cheerio";
 import {
   bold,
   CommandInteraction,
@@ -7,13 +5,8 @@ import {
   MessageFlags,
   SlashCommandBuilder,
 } from "discord.js";
-
-function removeEnding(str: string, ending: string) {
-  if (ending !== "" && str.endsWith(ending)) {
-    return str.slice(0, -ending.length);
-  }
-  return str;
-}
+import { convertCurrency } from "../dea";
+import { removeEnding } from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName("convert")
@@ -48,36 +41,17 @@ export async function execute(interaction: CommandInteraction) {
     });
   }
 
-  try {
-    const url = `https://www.xe.com/currencyconverter/convert/?Amount=${amount}&From=${from}&To=${to}`;
-    const { data } = await axios.get(url);
+  const data = await convertCurrency(amount.toString(), from, to);
 
-    const $ = load(data);
-    const baseElement = "div[data-testid=conversion] > div > div > div";
-    const textFrom = $(`${baseElement} > p:nth-child(1)`).text();
-    const nominalFrom = textFrom.split(" ")?.[0]?.trim();
-    const currencyFrom = textFrom
-      .split(" ")
-      .slice(1)
-      .join(" ")
-      .replace("=", "")
-      .trim();
-    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span.faded-digits`)
-      .text()
-      .trim();
-    const textTo = $(`${baseElement} > p:nth-child(2)`).text();
-    const nominalTo = textTo.split(" ")?.[0]?.trim() ?? "";
-    const currencyTo = textTo.split(" ").slice(1).join(" ");
-
+  if (data) {
     return interaction.reply({
-      content: `${bold(nominalFrom ?? "")} ${bold(currencyFrom)} = ${bold(removeEnding(nominalTo, fadedDigits))}${fadedDigits ? italic(fadedDigits) : ""} ${bold(currencyTo)}`,
-      flags: MessageFlags.Ephemeral,
-    });
-  } catch (error) {
-    console.error(error);
-    return interaction.reply({
-      content: "Something Wrong 😞",
+      content: `${bold(data.from.nominal?.toString() ?? "")} ${bold(data.from.currency)} = ${bold(removeEnding(data.to.nominal.toString(), data.to.fadedDigits))}${data.to.fadedDigits ? italic(data.to.fadedDigits) : ""} ${bold(data.to.currency)}`,
       flags: MessageFlags.Ephemeral,
     });
   }
+
+  return interaction.reply({
+    content: "Something Wrong 😞",
+    flags: MessageFlags.Ephemeral,
+  });
 }

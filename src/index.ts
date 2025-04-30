@@ -9,7 +9,11 @@ import {
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands, kebabToCamel, removeCacheFiles } from "./utils/utils";
-import { actionWhenFoundUrl, handleMessageLink } from "./dea";
+import {
+  actionWhenFoundUrl,
+  handleMessageConvert,
+  handleMessageLink,
+} from "./dea";
 import axios from "axios";
 import { botClient } from "./client";
 import { buttons } from "./buttons";
@@ -79,13 +83,20 @@ client.on("messageCreate", async (message: Message) => {
 
   // action if dea mentioned
   if (client.user && message.mentions.has(client.user.id)) {
-    const repliedId = message?.reference?.messageId ?? null;
-    if (repliedId) {
-      const msg = await message.channel.messages.fetch(repliedId);
-      await handleMessageLink(msg, msg.content);
-    }
+    const tagString = `<@${config.DISCORD_CLIENT_ID}>`;
+    const content = message.content.replace(tagString, "").trim();
 
-    await handleMessageLink(message, message.content);
+    if (content.split(" ")?.[0]?.toLowerCase() === "convert") {
+      await handleMessageConvert(message, content);
+    } else {
+      const repliedId = message?.reference?.messageId ?? null;
+      if (repliedId) {
+        const msg = await message.channel.messages.fetch(repliedId);
+        await handleMessageLink(msg, msg.content);
+      }
+
+      await handleMessageLink(message, message.content);
+    }
   } else {
     await actionWhenFoundUrl(message);
   }
