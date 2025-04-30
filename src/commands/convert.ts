@@ -1,10 +1,29 @@
 import axios from "axios";
 import { load } from "cheerio";
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  bold,
+  CommandInteraction,
+  italic,
+  MessageFlags,
+  SlashCommandBuilder,
+} from "discord.js";
+
+function removeEnding(str: string, ending: string) {
+  if (ending !== "" && str.endsWith(ending)) {
+    return str.slice(0, -ending.length);
+  }
+  return str;
+}
 
 export const data = new SlashCommandBuilder()
   .setName("convert")
   .setDescription("Convert Currency")
+  .addIntegerOption((option) =>
+    option
+      .setName("amount")
+      .setDescription("write the amount without comma and dot")
+      .setRequired(true),
+  )
   .addStringOption((option) =>
     option
       .setName("from")
@@ -13,12 +32,6 @@ export const data = new SlashCommandBuilder()
   )
   .addStringOption((option) =>
     option.setName("to").setDescription("To Currency Code").setRequired(true),
-  )
-  .addIntegerOption((option) =>
-    option
-      .setName("amount")
-      .setDescription("write the amount without comma and dot")
-      .setRequired(true),
   );
 
 export async function execute(interaction: CommandInteraction) {
@@ -29,7 +42,10 @@ export async function execute(interaction: CommandInteraction) {
   const amount = interaction.options.get("amount")?.value;
 
   if (!from || !to || amount === null || amount === undefined) {
-    return interaction.reply("Your Input not valid.");
+    return interaction.reply({
+      content: "Your Input not valid.",
+      flags: MessageFlags.Ephemeral,
+    });
   }
 
   try {
@@ -39,14 +55,29 @@ export async function execute(interaction: CommandInteraction) {
     const $ = load(data);
     const baseElement = "div[data-testid=conversion] > div > div > div";
     const textFrom = $(`${baseElement} > p:nth-child(1)`).text();
-    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span`).text();
+    const nominalFrom = textFrom.split(" ")?.[0]?.trim();
+    const currencyFrom = textFrom
+      .split(" ")
+      .slice(1)
+      .join(" ")
+      .replace("=", "")
+      .trim();
+    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span.faded-digits`)
+      .text()
+      .trim();
     const textTo = $(`${baseElement} > p:nth-child(2)`).text();
+    const nominalTo = textTo.split(" ")?.[0]?.trim() ?? "";
+    const currencyTo = textTo.split(" ").slice(1).join(" ");
 
-    return interaction.reply(
-      `${textFrom} ${textTo.replace(fadedDigits, "").trim()}`,
-    );
+    return interaction.reply({
+      content: `${bold(nominalFrom ?? "")} ${bold(currencyFrom)} = ${bold(removeEnding(nominalTo, fadedDigits))}${fadedDigits ? italic(fadedDigits) : ""} ${bold(currencyTo)}`,
+      flags: MessageFlags.Ephemeral,
+    });
   } catch (error) {
     console.error(error);
-    return interaction.reply("Something Wrong 😞");
+    return interaction.reply({
+      content: "Something Wrong 😞",
+      flags: MessageFlags.Ephemeral,
+    });
   }
 }
