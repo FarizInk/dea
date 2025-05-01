@@ -11,7 +11,7 @@ import { commands } from "./commands";
 import { deployCommands, kebabToCamel, removeCacheFiles } from "./utils/utils";
 import {
   actionWhenFoundUrl,
-  handleMessageConvert,
+  handleMessageConvertCurrency,
   handleMessageLink,
 } from "./dea";
 import axios from "axios";
@@ -87,7 +87,7 @@ client.on("messageCreate", async (message: Message) => {
     const content = message.content.replace(tagString, "").trim();
 
     if (content.split(" ")?.[0]?.toLowerCase() === "convert") {
-      await handleMessageConvert(message, content);
+      await handleMessageConvertCurrency(message, content);
     } else {
       const repliedId = message?.reference?.messageId ?? null;
       if (repliedId) {

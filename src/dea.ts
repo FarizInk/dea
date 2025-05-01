@@ -128,14 +128,17 @@ export async function handleMessageLink(
 
     let files: Exclude<(typeof data.files)[number], undefined>[] = [];
     for (let i = 0; i < totalFiles; i++) {
-      if (data.files[i])
+      if (data.files[i]) {
         files.push(
           data.files[i] as Exclude<(typeof data.files)[number], undefined>,
         );
+      }
 
       if (i + 1 === totalFiles) {
-        // const imageEmbed = getImageEmbed(data.files);
-        // if (imageEmbed) data.embed?.setImage(imageEmbed);
+        if (files.length === 1) {
+          const imageEmbed = getImageEmbed(files);
+          if (imageEmbed) data.embed?.setImage(imageEmbed);
+        }
 
         const embeds = data.embed ? [data.embed] : [];
 
@@ -187,7 +190,10 @@ export async function actionWhenFoundUrl(message: Message) {
   }
 }
 
-export async function handleMessageConvert(message: Message, content: string) {
+export async function handleMessageConvertCurrency(
+  message: Message,
+  content: string,
+) {
   const params = content
     .replace("convert", "")
     .replace(" to ", " ")
@@ -199,7 +205,6 @@ export async function handleMessageConvert(message: Message, content: string) {
       params?.[1] ?? "",
       params?.[2] ?? "",
     );
-    console.log(data);
 
     if (data) {
       await message.reply(
