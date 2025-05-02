@@ -41,8 +41,8 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
       const item = data as InstagramGraphQLResponse;
 
       if (
-        !item.owner?.username ||
-        !item.owner.full_name ||
+        item.owner?.username !== undefined ||
+        item.owner?.full_name !== undefined ||
         !item.taken_at_timestamp
       )
         return null;
