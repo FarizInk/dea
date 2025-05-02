@@ -40,16 +40,13 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
     } else if (metadata.provider_data === "instagram-graphql") {
       const item = data as InstagramGraphQLResponse;
 
-      if (
-        item.owner?.username !== undefined ||
-        item.owner?.full_name !== undefined ||
-        !item.taken_at_timestamp
-      )
-        return null;
-
       return new EmbedBuilder()
         .setColor(0xc72784)
-        .setTitle(item.owner.full_name)
+        .setTitle(
+          item.owner.full_name === ""
+            ? item.owner.username
+            : item.owner.full_name,
+        )
         .setURL(`https://instagram.com/${item.owner.username}`)
         .setAuthor({ name: `@${item.owner.username}` })
         .setDescription(
@@ -67,7 +64,9 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
 
       return new EmbedBuilder()
         .setColor(0xc72784)
-        .setTitle(item.user.full_name)
+        .setTitle(
+          item.user.full_name === "" ? item.user.username : item.user.full_name,
+        )
         .setURL(`https://instagram.com/${item.user.username}`)
         .setAuthor({ name: `@${item.user.username}` })
         .setThumbnail(item.user.profile_pic_url)
