@@ -74,6 +74,7 @@ export const mimes: MimesObjectType = {
   "text/calendar": "ics",
   "application/java-archive": "jar",
   "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
   "text/javascript": "js",
   "application/json": "json",
   "application/ld+json": "jsonld",
