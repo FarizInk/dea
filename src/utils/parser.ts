@@ -89,7 +89,9 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         )
         .setFooter({ text: "TikTok" });
     } else if (metadata.provider_data === "threads-graphql") {
-      const item = data as ThreadsGraphQLResponse;
+      let item =
+        (data?.thread_items?.[0]?.post as ThreadsGraphQLResponse) ??
+        (data as ThreadsGraphQLResponse);
 
       return new EmbedBuilder()
         .setColor(0x000000)

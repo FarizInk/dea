@@ -42,6 +42,8 @@ export const allowedUrls = [
   // threads
   "//threads.net/",
   "//www.threads.net/",
+  "//threads.com/",
+  "//www.threads.com/",
 ];
 
 interface MimesObjectType {
