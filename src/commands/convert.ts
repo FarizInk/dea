@@ -1,21 +1,30 @@
-import axios from 'axios';
-import { load } from 'cheerio';
-import { SlashCommandBuilder, ChatInputCommandInteraction } from 'discord.js';
+import {
+  bold,
+  CommandInteraction,
+  italic,
+  MessageFlags,
+  SlashCommandBuilder,
+} from "discord.js";
+import { convertCurrency } from "../dea";
+import { removeEnding } from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
-  .setName('convert')
-  .setDescription('Convert Currency')
-  .addStringOption(option =>
-    option.setName('from').setDescription('From Currency Code').setRequired(true)
-  )
-  .addStringOption(option =>
-    option.setName('to').setDescription('To Currency Code').setRequired(true)
-  )
-  .addIntegerOption(option =>
+  .setName("convert")
+  .setDescription("Convert Currency")
+  .addIntegerOption((option) =>
     option
-      .setName('amount')
-      .setDescription('write the amount without comma and dot')
-      .setRequired(true)
+      .setName("amount")
+      .setDescription("write the amount without comma and dot")
+      .setRequired(true),
+  )
+  .addStringOption((option) =>
+    option
+      .setName("from")
+      .setDescription("From Currency Code")
+      .setRequired(true),
+  )
+  .addStringOption((option) =>
+    option.setName("to").setDescription("To Currency Code").setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -26,21 +35,23 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const to = toValue ? toValue.toUpperCase() : null;
 
   if (!from || !to || amount === null || amount === undefined) {
-    return interaction.reply('Your Input not valid.');
+    return interaction.reply({
+      content: "Your Input not valid.",
+      flags: MessageFlags.Ephemeral,
+    });
   }
 
-  try {
-    const url = `https://www.xe.com/currencyconverter/convert/?Amount=${amount}&From=${from}&To=${to}`;
-    const { data } = await axios.get(url);
+  const data = await convertCurrency(amount.toString(), from, to);
 
-    const $ = load(data);
-    const baseElement = 'div[data-testid=conversion] > div > div > div';
-    const textFrom = $(`${baseElement} > p:nth-child(1)`).text();
-    const fadedDigits = $(`${baseElement} > p:nth-child(2) > span`).text();
-    const textTo = $(`${baseElement} > p:nth-child(2)`).text();
-
-    return interaction.reply(`${textFrom} ${textTo.replace(fadedDigits, '').trim()}`);
-  } catch {
-    return interaction.reply('Something Wrong 😞');
+  if (data) {
+    return interaction.reply({
+      content: `${bold(data.from.nominal?.toString() ?? "")} ${bold(data.from.currency)} = ${bold(removeEnding(data.to.nominal.toString(), data.to.fadedDigits))}${data.to.fadedDigits ? italic(data.to.fadedDigits) : ""} ${bold(data.to.currency)}`,
+      flags: MessageFlags.Ephemeral,
+    });
   }
+
+  return interaction.reply({
+    content: "Something Wrong 😞",
+    flags: MessageFlags.Ephemeral,
+  });
 }

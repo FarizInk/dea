@@ -1,6 +1,8 @@
 # Use official Bun image
 FROM oven/bun:latest
 
+LABEL project=dea
+
 # Install FFmpeg
 RUN apt-get update && apt-get install -y ffmpeg
 

@@ -1,1 +1,1 @@
-git pull && docker compose build && docker compose down && docker compose up -d
+git pull && docker compose build && docker compose down && docker compose up -d && docker image prune --filter "label=project=dea" -f
