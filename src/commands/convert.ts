@@ -1,30 +1,27 @@
 import {
   bold,
-  CommandInteraction,
   italic,
   MessageFlags,
   SlashCommandBuilder,
-} from "discord.js";
-import { convertCurrency } from "../dea";
-import { removeEnding } from "../utils/utils";
+  ChatInputCommandInteraction,
+} from 'discord.js';
+import { convertCurrency } from '../dea';
+import { removeEnding } from '../utils/utils';
 
 export const data = new SlashCommandBuilder()
-  .setName("convert")
-  .setDescription("Convert Currency")
-  .addIntegerOption((option) =>
+  .setName('convert')
+  .setDescription('Convert Currency')
+  .addIntegerOption(option =>
     option
-      .setName("amount")
-      .setDescription("write the amount without comma and dot")
-      .setRequired(true),
+      .setName('amount')
+      .setDescription('write the amount without comma and dot')
+      .setRequired(true)
   )
-  .addStringOption((option) =>
-    option
-      .setName("from")
-      .setDescription("From Currency Code")
-      .setRequired(true),
+  .addStringOption(option =>
+    option.setName('from').setDescription('From Currency Code').setRequired(true)
   )
-  .addStringOption((option) =>
-    option.setName("to").setDescription("To Currency Code").setRequired(true),
+  .addStringOption(option =>
+    option.setName('to').setDescription('To Currency Code').setRequired(true)
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -36,7 +33,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   if (!from || !to || amount === null || amount === undefined) {
     return interaction.reply({
-      content: "Your Input not valid.",
+      content: 'Your Input not valid.',
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -45,13 +42,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   if (data) {
     return interaction.reply({
-      content: `${bold(data.from.nominal?.toString() ?? "")} ${bold(data.from.currency)} = ${bold(removeEnding(data.to.nominal.toString(), data.to.fadedDigits))}${data.to.fadedDigits ? italic(data.to.fadedDigits) : ""} ${bold(data.to.currency)}`,
+      content: `${bold(data.from.nominal?.toString() ?? '')} ${bold(data.from.currency)} = ${bold(removeEnding(data.to.nominal.toString(), data.to.fadedDigits))}${data.to.fadedDigits ? italic(data.to.fadedDigits) : ''} ${bold(data.to.currency)}`,
       flags: MessageFlags.Ephemeral,
     });
   }
 
   return interaction.reply({
-    content: "Something Wrong 😞",
+    content: 'Something Wrong 😞',
     flags: MessageFlags.Ephemeral,
   });
 }

@@ -1,5 +1,5 @@
 interface RawTextFacet {
-  type: "media" | string;
+  type: 'media' | string;
   indices: [number, number];
   id: string;
   display: string;
@@ -36,7 +36,7 @@ interface Author {
 }
 
 interface MediaItem {
-  type: "photo" | string;
+  type: 'photo' | string;
   url: string;
   width: number;
   height: number;
@@ -48,7 +48,7 @@ interface MosaicFormats {
 }
 
 interface Mosaic {
-  type: "mosaic_photo" | string;
+  type: 'mosaic_photo' | string;
   formats: MosaicFormats;
 }
 
@@ -80,5 +80,5 @@ export interface FxTwitterResponse {
   source: string;
   twitter_card: string;
   color: string | null;
-  provider: "twitter" | string;
+  provider: 'twitter' | string;
 }

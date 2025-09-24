@@ -1,8 +1,8 @@
-import axios from "axios";
-import { downloadFile } from "./utils";
-import { generateEmbed } from "./parser";
-import { allowedUrls } from "../config";
-import * as fs from "fs";
+import axios from 'axios';
+import { downloadFile } from './utils';
+import { generateEmbed } from './parser';
+import { allowedUrls } from '../config';
+import * as fs from 'fs';
 
 interface Config {
   baseUrl: string;
@@ -12,33 +12,30 @@ interface Config {
 }
 type ConfigArray = Config[];
 
-const configPath = "./config/h.json";
+const configPath = './config/h.json';
 const configFile = Bun.file(configPath);
 
 export const isAllowedUrl = (link: string): boolean => {
   // Direct match with allowed URL patterns
-  const directMatch = allowedUrls.some((a) => link.includes(a));
+  const directMatch = allowedUrls.some(a => link.includes(a));
   if (directMatch) return true;
 
   // Special case for Instagram URLs with usernames
-  const instagramRegex =
-    /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
+  const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/[^/]+\/(p|reel|stories|share)\//;
   return instagramRegex.test(link);
 };
 
 async function getScrapperConfig() {
   const isExist = await configFile.exists();
-  if (!isExist) throw new Error("Please Set Config!");
+  if (!isExist) throw new Error('Please Set Config!');
   const configs: ConfigArray = await configFile.json();
 
   for (let i = 0; i < configs.length; i++) {
     const config: Config | undefined = configs[i];
     if (!config) continue;
     try {
-      const { data } = await axios.get(
-        `${config.baseUrl}/${config.statusPath}`,
-      );
-      if (data.status === "ok") {
+      const { data } = await axios.get(`${config.baseUrl}/${config.statusPath}`);
+      if (data.status === 'ok') {
         return {
           url: `${config.baseUrl}/${config.scrapperPath}`,
           token: config.token,
@@ -51,7 +48,7 @@ async function getScrapperConfig() {
     }
   }
 
-  throw new Error("No Scrapper Instances active!");
+  throw new Error('No Scrapper Instances active!');
 }
 
 export const basicGetter = async (url: string) => {
@@ -64,12 +61,12 @@ export const basicGetter = async (url: string) => {
       },
       {
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${config.token}`,
         },
         timeout: 60000, // 60 seconds
-      },
+      }
     );
 
     const medias = data.medias ?? [];
@@ -103,7 +100,7 @@ export function getLinks(message: string) {
 }
 
 export async function removeFiles(files: (string | null)[]) {
-  files.forEach((file) => {
+  files.forEach(file => {
     if (file) fs.unlink(file, () => null);
   });
 }

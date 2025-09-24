@@ -1,5 +1,4 @@
 interface UserInfo {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   friendship_status: any | null;
   id: string;
   pk: string;
@@ -17,15 +16,14 @@ interface PinnedPostInfo {
 }
 
 interface ShareInfo {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reposted_post: any | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   quoted_post: any | null;
-  __typename: "XDTShareInfo";
+  __typename: 'XDTShareInfo';
   can_quote_post: boolean;
   can_repost: boolean;
   is_reposted_by_viewer: boolean;
-  repost_restricted_reason: "private" | string; // Add other possible values if known
+  repost_restricted_reason: 'private' | string; // Add other possible values if known
 }
 
 interface TextPostAppInfo {
@@ -34,13 +32,13 @@ interface TextPostAppInfo {
   share_info: ShareInfo;
   reply_to_author: string | null;
   direct_reply_count: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   hush_info: any | null;
   can_reply: boolean;
   is_reply: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   link_preview_attachment: any | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   fediverse_info: any | null;
   post_unavailable_reason: string | null;
 }
@@ -58,7 +56,7 @@ interface ImageVersions2 {
 interface VideoVersion {
   type: number;
   url: string;
-  __typename: "XDTVideoVersion";
+  __typename: 'XDTVideoVersion';
 }
 
 interface CarouselMediaItem {
@@ -95,7 +93,7 @@ export interface ThreadsGraphQLResponse {
   audio: null;
   caption: Caption;
   caption_is_edited: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   transcription_data: any | null;
   accessibility_caption: string;
   has_audio: boolean | null;
@@ -103,9 +101,9 @@ export interface ThreadsGraphQLResponse {
   has_liked: boolean;
   caption_add_on: null;
   media_overlay_info: null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   giphy_media_info: any | null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   text_with_entities: any | null;
   taken_at: number;
   organic_tracking_token: string;

@@ -39,17 +39,17 @@ interface Image {
 }
 
 export interface ImagesEmbed {
-  $type: "app.bsky.embed.images";
+  $type: 'app.bsky.embed.images';
   images: Image[];
 }
 
 interface LinkFacetFeature {
-  $type: "app.bsky.richtext.facet#link";
+  $type: 'app.bsky.richtext.facet#link';
   uri: string;
 }
 
 interface TagFacetFeature {
-  $type: "app.bsky.richtext.facet#tag";
+  $type: 'app.bsky.richtext.facet#tag';
   tag: string;
 }
 
@@ -80,26 +80,26 @@ interface ImagesEmbedViewImage {
 }
 
 interface ImagesEmbedView {
-  $type: "app.bsky.embed.images#view";
+  $type: 'app.bsky.embed.images#view';
   images: ImagesEmbedViewImage[];
 }
 
 interface VideoBlob {
-  $type: "blob";
+  $type: 'blob';
   ref: BlobRef;
-  mimeType: "video/mp4";
+  mimeType: 'video/mp4';
   size: number;
 }
 
 interface VideoEmbed {
-  $type: "app.bsky.embed.video";
+  $type: 'app.bsky.embed.video';
   alt: string;
   aspectRatio?: AspectRatio;
   video: VideoBlob;
 }
 
 interface VideoEmbedView {
-  $type: "app.bsky.embed.video#view";
+  $type: 'app.bsky.embed.video#view';
   cid?: string;
   playlist?: string;
   thumbnail?: string;

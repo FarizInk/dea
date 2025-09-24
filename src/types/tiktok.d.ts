@@ -9,7 +9,7 @@ export interface TikTokParserResponse {
   challenges: Challenge[];
   stats: Stats;
   statsV2: StatsV2;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   warnInfo: any[];
   originalItem: boolean;
   officalItem: boolean;
@@ -19,25 +19,25 @@ export interface TikTokParserResponse {
   digged: boolean;
   itemCommentStatus: number;
   takeDown: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   effectStickers: any[];
   privateItem: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   stickersOnItem: any[];
   shareEnabled: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   comments: any[];
   duetDisplay: number;
   stitchDisplay: number;
   imagePost: ImagePost;
   locationCreated: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   suggestedWords: any[];
   contents: Content[];
   collected: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   channelTags: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   item_control: any;
   isContentClassified: boolean;
   IsAigc: boolean;
@@ -64,7 +64,7 @@ export interface Video {
   encodeUserTag: string;
   codecType: string;
   definition: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   subtitleInfos: any[];
   zoomCover: ZoomCover;
   volumeInfo: VolumeInfo;
@@ -73,10 +73,10 @@ export interface Video {
 }
 
 export interface ZoomCover {
-  "240": string;
-  "480": string;
-  "720": string;
-  "960": string;
+  '240': string;
+  '480': string;
+  '720': string;
+  '960': string;
 }
 
 export interface VolumeInfo {

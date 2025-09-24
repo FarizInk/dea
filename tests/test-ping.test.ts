@@ -9,13 +9,13 @@ const createMockInteraction = (pingValue = 50) => {
     createdTimestamp: Date.now(),
     client: {
       ws: {
-        ping: pingValue
-      }
+        ping: pingValue,
+      },
     },
     reply: (options: any) => {
       replyData = options;
       return Promise.resolve();
-    }
+    },
   } as unknown as ChatInputCommandInteraction;
 
   return { mockInteraction, getReply: () => replyData };

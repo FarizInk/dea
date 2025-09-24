@@ -101,7 +101,6 @@ export interface InstagramGraphQLResponse {
         tracking_token: string;
         upcoming_event: null;
         edge_media_to_tagged_user: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           edges: any[];
         };
       };
@@ -149,14 +148,13 @@ export interface InstagramGraphQLResponse {
             has_next_page: boolean;
             end_cursor: string | null;
           };
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
           edges: any[];
         };
       };
     }[];
   };
   edge_media_to_hoisted_comment: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     edges: any[];
   };
   edge_media_preview_comment: {
@@ -186,11 +184,10 @@ export interface InstagramGraphQLResponse {
   taken_at_timestamp: number;
   edge_media_preview_like: {
     count: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     edges: any[];
   };
   edge_media_to_sponsor_user: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     edges: any[];
   };
   is_affiliate: boolean;
@@ -204,11 +201,10 @@ export interface InstagramGraphQLResponse {
   viewer_can_reshare: boolean;
   is_ad: boolean;
   edge_web_media_to_related_media: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     edges: any[];
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   coauthor_producers: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   pinned_for_users: any[];
 }

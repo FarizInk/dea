@@ -5,7 +5,7 @@ interface MediaExtended {
     width: number;
   };
   thumbnail_url: string;
-  type: "image" | string;
+  type: 'image' | string;
   url: string;
 }
 
@@ -18,7 +18,7 @@ export interface VxTwitterResponse {
   date: string;
   date_epoch: number;
   hasMedia: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   hashtags: any[]; // Assuming an array of strings or other hashtag-related objects
   lang: string;
   likes: number;

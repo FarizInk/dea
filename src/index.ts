@@ -1,36 +1,25 @@
-import {
-  ActivityType,
-  ButtonInteraction,
-  CommandInteraction,
-  inlineCode,
-  Message,
-  type Interaction,
-} from "discord.js";
-import { config } from "./config";
-import { commands } from "./commands";
-import { deployCommands, kebabToCamel, removeCacheFiles } from "./utils/utils";
-import {
-  actionWhenFoundUrl,
-  handleMessageConvertCurrency,
-  handleMessageLink,
-} from "./dea";
-import axios from "axios";
-import { botClient } from "./client";
-import { buttons } from "./buttons";
+import { ActivityType, ButtonInteraction, inlineCode, Message, type Interaction } from 'discord.js';
+import { config } from './config';
+import { commands } from './commands';
+import { deployCommands, kebabToCamel, removeCacheFiles } from './utils/utils';
+import { actionWhenFoundUrl, handleMessageConvertCurrency, handleMessageLink } from './dea';
+import axios from 'axios';
+import { botClient } from './client';
+import { buttons } from './buttons';
 
 const client = botClient;
 
-client.once("clientReady", () => {
+client.once('clientReady', () => {
   function setPresence() {
     client.user?.setPresence({
       activities: [
         {
-          name: "with raspi-kun",
+          name: 'with raspi-kun',
           type: ActivityType.Playing,
-          url: "https://dea.fariz.dev",
+          url: 'https://dea.fariz.dev',
         },
       ],
-      status: "idle",
+      status: 'idle',
     });
   }
   setPresence();
@@ -51,41 +40,37 @@ client.once("clientReady", () => {
   }
 });
 
-client.on("guildCreate", async (guild) => {
+client.on('guildCreate', async guild => {
   await deployCommands({ guildId: guild.id });
 });
 
-client.on("interactionCreate", async (interaction: Interaction) => {
+client.on('interactionCreate', async (interaction: Interaction) => {
   if (interaction.isChatInputCommand()) {
     const { commandName } = interaction;
 
     if (commands[commandName as keyof typeof commands]) {
-      commands[commandName as keyof typeof commands].execute(
-        commandInteraction,
-      );
+      commands[commandName as keyof typeof commands].execute(interaction);
     }
   } else if (interaction.isButton()) {
     const buttonInteraction = interaction as ButtonInteraction;
     const { customId } = buttonInteraction;
 
     if (buttons[kebabToCamel(customId) as keyof typeof buttons]) {
-      buttons[kebabToCamel(customId) as keyof typeof buttons].execute(
-        buttonInteraction,
-      );
+      buttons[kebabToCamel(customId) as keyof typeof buttons].execute(buttonInteraction);
     }
   }
 });
 
-client.on("messageCreate", async (message: Message) => {
+client.on('messageCreate', async (message: Message) => {
   // Ignore messages sent by dea
   if (client.user?.id && message.author.id === client.user.id) return;
 
   // action if dea mentioned
   if (client.user && message.mentions.has(client.user.id)) {
     const tagString = `<@${config.DISCORD_CLIENT_ID}>`;
-    const content = message.content.replace(tagString, "").trim();
+    const content = message.content.replace(tagString, '').trim();
 
-    if (content.split(" ")?.[0]?.toLowerCase() === "convert") {
+    if (content.split(' ')?.[0]?.toLowerCase() === 'convert') {
       await handleMessageConvertCurrency(message, content);
     } else {
       const repliedId = message?.reference?.messageId ?? null;
@@ -102,11 +87,11 @@ client.on("messageCreate", async (message: Message) => {
 
   // message from master
   if (message.author.id === config.MASTER_ID) {
-    if (message.content === "dea server count") {
+    if (message.content === 'dea server count') {
       message.reply(`Dea is in ${client.guilds.cache.size} servers.`);
-    } else if (message.content === "dea server list") {
-      let msg = "";
-      client.guilds.cache.forEach((guild) => {
+    } else if (message.content === 'dea server list') {
+      let msg = '';
+      client.guilds.cache.forEach(guild => {
         msg = msg + `- ${guild.name} ${inlineCode(guild.id)}\n`;
       });
 

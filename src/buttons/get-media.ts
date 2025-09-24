@@ -1,15 +1,10 @@
-import {
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-  MessageFlags,
-} from "discord.js";
-import { handleMessageLink } from "../dea";
-import { botClient } from "../client";
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, MessageFlags } from 'discord.js';
+import { handleMessageLink } from '../dea';
+import { botClient } from '../client';
 
 export const btnGetMedia = new ButtonBuilder()
-  .setCustomId("get-media")
-  .setLabel("Yes!")
+  .setCustomId('get-media')
+  .setLabel('Yes!')
   .setStyle(ButtonStyle.Primary);
 
 export async function execute(interraction: ButtonInteraction) {
@@ -28,7 +23,7 @@ export async function execute(interraction: ButtonInteraction) {
       if (channel?.isTextBased()) {
         const message = await channel.messages.fetch(messageId);
         await interraction.reply({
-          content: "Wait a moment, I am getting the media...",
+          content: 'Wait a moment, I am getting the media...',
           flags: MessageFlags.Ephemeral,
         });
         await handleMessageLink(message, message.content, botClient);
@@ -36,7 +31,7 @@ export async function execute(interraction: ButtonInteraction) {
     }
   } else {
     await interraction.reply({
-      content: "No valid Discord message link found.",
+      content: 'No valid Discord message link found.',
       flags: MessageFlags.Ephemeral,
     });
   }

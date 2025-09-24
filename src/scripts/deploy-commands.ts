@@ -1,3 +1,3 @@
-import { deployCommands } from "../utils/utils";
+import { deployCommands } from '../utils/utils';
 
 await deployCommands({ guildId: null });
