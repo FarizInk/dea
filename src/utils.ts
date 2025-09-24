@@ -4,7 +4,7 @@ import * as fs from "fs";
 import * as stream from "stream";
 import { promisify } from "util";
 import { mimes } from "./config";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import * as path from "path";
 
 export const downloadFile = async (
@@ -52,8 +52,7 @@ export const downloadFile = async (
     await finishedDownload(writer);
 
     return filePath;
-  } catch (error) {
-    console.error(`error download file: ${url}, ${error instanceof AxiosError ? error.response?.data : error}`);
+  } catch {
     return null;
   }
 };
@@ -98,7 +97,7 @@ export function compressVideo(inputPath: string, maxSizeMB = 8) {
 export const removeCacheFiles = () => {
   fs.readdir("./cache", (err, files) => {
     if (err) {
-      console.error(err);
+      // Silent error handling for cache directory read
     }
 
     files.forEach((file) => {

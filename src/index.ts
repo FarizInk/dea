@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, CommandInteraction, GatewayIntentBits, inlineCode, Message, MessageFlags, quote, type Interaction } from "discord.js";
+import { ActionRowBuilder, ActivityType, ButtonBuilder, ButtonInteraction, ButtonStyle, Client, GatewayIntentBits, inlineCode, Message, MessageFlags, quote, type Interaction } from "discord.js";
 import { config } from "./config";
 import { commands } from "./commands";
 import { deployCommands } from "./deploy-commands";
@@ -15,7 +15,7 @@ const client = new Client({
   ],
 });
 
-client.once("ready", () => {
+client.once("clientReady", () => {
   function setPresence() {
     client.user?.setPresence({
       activities: [
@@ -31,10 +31,10 @@ client.once("ready", () => {
   setPresence();
   setInterval(setPresence, 3600000); // every 1 hour
 
-  console.info("Remove Cache File");
+  // Remove Cache File
   removeCacheFiles();
 
-  console.info("Discord bot is ready! 🤖");
+  // Discord bot is ready! 🤖
 
   async function pushToUptime() {
     if (!config.UPTIME_API_URL) return null;
@@ -51,12 +51,11 @@ client.on("guildCreate", async (guild) => {
 });
 
 client.on("interactionCreate", async (interaction: Interaction) => {
-  if (interaction.isCommand()) {
-    const commandInteraction = interaction as CommandInteraction;
-    const { commandName } = commandInteraction;
+  if (interaction.isChatInputCommand()) {
+    const { commandName } = interaction;
 
     if (commands[commandName as keyof typeof commands]) {
-      commands[commandName as keyof typeof commands].execute(commandInteraction);
+      commands[commandName as keyof typeof commands].execute(interaction);
     }
   } else if (interaction.isButton()) {
     const buttonInteraction = interaction as ButtonInteraction;
@@ -122,7 +121,7 @@ client.on("messageCreate", async (message: Message) => {
     message.reply(msg)
   }
 
-  let links = getLinks(message.content);
+  const links = getLinks(message.content);
   let isAllowed = false;
   links.forEach((link) => {
     const result = isAllowedUrl(link)

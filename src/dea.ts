@@ -34,9 +34,7 @@ const basicGetter = async (url: string) => {
       files,
       embed: getEmbed(data),
     };
-  } catch (error) {
-    console.error(`error getting info: ${url}`);
-    console.error(error);
+  } catch {
     return {
       files: [],
       embed: null,
@@ -56,8 +54,8 @@ const removeEmoji = async (client: Client, message: Message, emoji: string) => {
     const fetchedMessage = await message.channel.messages.fetch(message.id);
     const reaction = fetchedMessage.reactions.cache.get(emoji);
     if (reaction && client.user) await reaction.users.remove(client.user?.id);
-  } catch (error) {
-    console.error("Error removing reaction:", error);
+  } catch {
+    // Silent error handling for reaction removal
   }
 };
 
@@ -81,7 +79,7 @@ export const isAllowedUrl = (link: string): boolean => {
   if (directMatch) return true;
 
   // Special case for Instagram URLs with usernames
-  const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/[^\/]+\/(p|reel|stories|share)\//;
+  const instagramRegex = /https?:\/\/(www\.)?instagram\.com\/[^/]+\/(p|reel|stories|share)\//;
   return instagramRegex.test(link);
 }
 
@@ -151,9 +149,9 @@ export const handleMessageLink = async (
       }] : []
 
       if (i + 1 === totalFiles) {
-        message instanceof CommandInteraction ? await message.followUp({ files, embeds }) : await send(message, { files, embeds });
+        await (message instanceof CommandInteraction ? message.followUp({ files, embeds }) : send(message, { files, embeds }));
       } else if ((i + 1) % 10 === 0) {
-        message instanceof CommandInteraction ? await message.followUp({ files, embeds }) : await send(message, { files, embeds });
+        await (message instanceof CommandInteraction ? message.followUp({ files, embeds }) : send(message, { files, embeds }));
         files = [];
       }
     }

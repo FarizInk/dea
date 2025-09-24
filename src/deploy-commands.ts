@@ -12,7 +12,7 @@ type DeployCommandsProps = {
 
 export async function deployCommands({ guildId = null }: DeployCommandsProps) {
   try {
-    console.info("Started refreshing application (/) commands.");
+    // Started refreshing application (/) commands
 
     if (guildId) {
       await rest.put(
@@ -30,8 +30,8 @@ export async function deployCommands({ guildId = null }: DeployCommandsProps) {
       )
     }
 
-    console.info("Successfully reloaded application (/) commands.");
-  } catch (error) {
-    console.error(error);
+    // Successfully reloaded application (/) commands
+  } catch {
+    // Error handling for command deployment
   }
 }
