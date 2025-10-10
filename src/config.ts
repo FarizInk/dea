@@ -1,7 +1,8 @@
-const { DISCORD_TOKEN, DISCORD_CLIENT_ID, MASTER_ID, UPTIME_API_URL } = process.env;
+const { DISCORD_TOKEN, DISCORD_CLIENT_ID, MASTER_ID, UPTIME_API_URL } =
+  process.env
 
 if (!DISCORD_TOKEN || !DISCORD_CLIENT_ID || !MASTER_ID) {
-  throw new Error('Missing environment variables');
+  throw new Error('Missing environment variables')
 }
 
 export const config = {
@@ -9,7 +10,7 @@ export const config = {
   DISCORD_CLIENT_ID,
   MASTER_ID,
   UPTIME_API_URL,
-};
+}
 
 export const allowedUrls = [
   // instagram
@@ -43,10 +44,10 @@ export const allowedUrls = [
   '//www.threads.net/',
   '//threads.com/',
   '//www.threads.com/',
-];
+]
 
 interface MimesObjectType {
-  [key: string]: string; // Define the type of properties in the object
+  [key: string]: string // Define the type of properties in the object
 }
 
 export const mimes: MimesObjectType = {
@@ -65,7 +66,8 @@ export const mimes: MimesObjectType = {
   'text/css': 'css',
   'text/csv': 'csv',
   'application/msword': 'doc',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    'docx',
   'application/vnd.ms-fontobject': 'eot',
   'application/epub+zip': 'epub',
   'application/gzip': 'gz',
@@ -97,7 +99,8 @@ export const mimes: MimesObjectType = {
   'application/pdf': 'pdf',
   'application/x-httpd-php': 'php',
   'application/vnd.ms-powerpoint': 'ppt',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+    'pptx',
   'application/vnd.rar': 'rar',
   'application/rtf': 'rtf',
   'application/x-sh': 'sh',
@@ -127,4 +130,4 @@ export const mimes: MimesObjectType = {
   'video/3gpp2': '3g2',
   'audio/3gpp2': '3g2',
   'application/x-7z-compressed': '7z',
-};
+}

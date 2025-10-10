@@ -1,67 +1,81 @@
-import Ffmpeg from 'fluent-ffmpeg';
-import { renameSync } from 'fs';
-import * as fs from 'fs';
-import * as stream from 'stream';
-import { promisify } from 'util';
-import { mimes } from './config';
-import axios from 'axios';
-import * as path from 'path';
+import Ffmpeg from 'fluent-ffmpeg'
+import { renameSync } from 'fs'
+import * as fs from 'fs'
+import * as stream from 'stream'
+import { promisify } from 'util'
+import { mimes } from './config'
+import axios from 'axios'
+import * as path from 'path'
 
-export const downloadFile = async (name: string, url: string, ext: string | null = null) => {
-  const finishedDownload = promisify(stream.finished);
+export const downloadFile = async (
+  name: string,
+  url: string,
+  ext: string | null = null
+) => {
+  const finishedDownload = promisify(stream.finished)
 
-  const extensions = ['.png', '.jpg', '.jpeg', '.mp4', '.webp'];
-  let extension: string | null = null;
-  extensions.forEach(e => (extension === null && url.includes(e) ? (extension = e) : null));
+  const extensions = ['.png', '.jpg', '.jpeg', '.mp4', '.webp']
+  let extension: string | null = null
+  extensions.forEach(e =>
+    extension === null && url.includes(e) ? (extension = e) : null
+  )
 
   if (extension === null) {
-    const response = await fetch(url);
+    const response = await fetch(url)
     const filename =
-      response.headers.get('content-disposition')?.split('filename=')[1]?.replace(/"/g, '') ?? null;
+      response.headers
+        .get('content-disposition')
+        ?.split('filename=')[1]
+        ?.replace(/"/g, '') ?? null
     for (const key in mimes) {
-      const mime = mimes[key];
+      const mime = mimes[key]
       if (mime === filename?.split('.').pop()) {
-        extension = '.' + mime;
-        break;
+        extension = '.' + mime
+        break
       }
     }
 
     if (!extension) {
-      const contentType = response.headers.get('content-type')?.split(';')[0]?.trim() ?? null;
+      const contentType =
+        response.headers.get('content-type')?.split(';')[0]?.trim() ?? null
 
-      if (contentType) extension = mimes[contentType] ? '.' + mimes[contentType] : null;
+      if (contentType)
+        extension = mimes[contentType] ? '.' + mimes[contentType] : null
     }
   }
 
-  const filename = `${name}${ext ?? extension}`;
-  const filePath = './cache/' + filename;
-  const writer = fs.createWriteStream(filePath);
+  const filename = `${name}${ext ?? extension}`
+  const filePath = './cache/' + filename
+  const writer = fs.createWriteStream(filePath)
   try {
     const response = await axios.get(url, {
       responseType: 'stream',
-    });
+    })
 
-    response.data.pipe(writer);
-    await finishedDownload(writer);
+    response.data.pipe(writer)
+    await finishedDownload(writer)
 
-    return filePath;
+    return filePath
   } catch {
-    return null;
+    return null
   }
-};
+}
 
 export function compressVideo(inputPath: string, maxSizeMB = 8) {
-  const splitDot = inputPath.split('.');
-  const ext = splitDot[splitDot.length - 1];
-  const outputPath = inputPath.replace(`.${ext}`, `-mini.${ext}`);
+  const splitDot = inputPath.split('.')
+  const ext = splitDot[splitDot.length - 1]
+  const outputPath = inputPath.replace(`.${ext}`, `-mini.${ext}`)
 
   return new Promise((resolve, reject) => {
     Ffmpeg.ffprobe(inputPath, (err, metadata) => {
-      if (err) return reject(err);
+      if (err) return reject(err)
 
-      const duration = metadata.format.duration ?? 0; // in seconds
-      const audioBitrate = 128;
-      const targetBitrate = ((maxSizeMB * 8 * 1024) / duration - audioBitrate).toFixed(2); // in kbps
+      const duration = metadata.format.duration ?? 0 // in seconds
+      const audioBitrate = 128
+      const targetBitrate = (
+        (maxSizeMB * 8 * 1024) / duration -
+        audioBitrate
+      ).toFixed(2) // in kbps
 
       Ffmpeg(inputPath)
         .output(outputPath)
@@ -73,15 +87,15 @@ export function compressVideo(inputPath: string, maxSizeMB = 8) {
         ])
         .size('?x720') // Optional: Scale to 720p max
         .on('end', function () {
-          renameSync(outputPath, inputPath);
-          resolve('Video processing finished');
+          renameSync(outputPath, inputPath)
+          resolve('Video processing finished')
         })
         .on('error', function (err) {
-          reject(new Error('Error during video processing: ' + err.message));
+          reject(new Error('Error during video processing: ' + err.message))
         })
-        .run();
-    });
-  });
+        .run()
+    })
+  })
 }
 
 export const removeCacheFiles = () => {
@@ -91,59 +105,59 @@ export const removeCacheFiles = () => {
     }
 
     files.forEach(file => {
-      const fileDir = path.join('./cache', file);
+      const fileDir = path.join('./cache', file)
 
       if (file !== '.gitignore') {
-        fs.unlinkSync(fileDir);
+        fs.unlinkSync(fileDir)
       }
-    });
-  });
-};
+    })
+  })
+}
 
 type TwitterData = {
-  user_name: string;
-  user_screen_name: string;
-  text: string;
-  user_profile_image_url: string;
-  date: string;
-};
+  user_name: string
+  user_screen_name: string
+  text: string
+  user_profile_image_url: string
+  date: string
+}
 
 type InstagramCookiesData = {
   user?: {
-    username?: string;
-    full_name?: string;
-    hd_profile_pic_url_info?: { url?: string };
-  };
-  caption?: { text?: string };
-  taken_at?: string;
-};
+    username?: string
+    full_name?: string
+    hd_profile_pic_url_info?: { url?: string }
+  }
+  caption?: { text?: string }
+  taken_at?: string
+}
 
 type InstagramData = {
   data_to_caption?: {
-    edges: { node: { text: string } }[];
-  };
+    edges: { node: { text: string } }[]
+  }
   owner?: {
-    username: string;
-    full_name: string;
-    profile_pic_url: string;
-  };
-  taken_at_timestamp?: string;
-};
+    username: string
+    full_name: string
+    profile_pic_url: string
+  }
+  taken_at_timestamp?: string
+}
 
 type TikTokData = {
-  author_name: string;
-  author_unique_id: string;
-  title: string;
-};
+  author_name: string
+  author_unique_id: string
+  title: string
+}
 
 type ResponseData =
   | { via: 'vxtwitter'; data: TwitterData }
   | { via: 'ig-cookies'; data: InstagramCookiesData }
   | { via: 'ig'; data: InstagramData }
-  | { via: 'btch-downloader'; platform: 'tiktok'; data: TikTokData };
+  | { via: 'btch-downloader'; platform: 'tiktok'; data: TikTokData }
 
 export const getEmbed = (response: ResponseData) => {
-  const { via, data } = response;
+  const { via, data } = response
 
   if (via === 'vxtwitter') {
     return {
@@ -155,11 +169,11 @@ export const getEmbed = (response: ResponseData) => {
       thumbnail: { url: data.user_profile_image_url.replace('_normal', '') },
       timestamp: new Date(data.date).toISOString(),
       footer: { text: 'X / Twitter' },
-    };
+    }
   }
 
   if (via === 'ig-cookies') {
-    if (!data.user?.username) return null;
+    if (!data.user?.username) return null
     return {
       color: 0xc72784,
       title: data.user.full_name,
@@ -167,14 +181,21 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.user.username}` },
       description: data.caption?.text ?? null,
       thumbnail: { url: data.user.hd_profile_pic_url_info?.url ?? null },
-      timestamp: data.taken_at ? new Date(parseInt(data.taken_at + '000')).toISOString() : null,
+      timestamp: data.taken_at
+        ? new Date(parseInt(data.taken_at + '000')).toISOString()
+        : null,
       footer: { text: 'Instagram' },
       files: [],
-    };
+    }
   }
 
   if (via === 'ig') {
-    if (!data.owner?.username || !data.owner.full_name || !data.taken_at_timestamp) return null;
+    if (
+      !data.owner?.username ||
+      !data.owner.full_name ||
+      !data.taken_at_timestamp
+    )
+      return null
     return {
       color: 0xc72784,
       title: data.owner.full_name,
@@ -182,9 +203,11 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.owner.username}` },
       description: data.data_to_caption?.edges[0]?.node?.text ?? null,
       thumbnail: { url: data.owner.profile_pic_url },
-      timestamp: new Date(parseInt(data.taken_at_timestamp + '000')).toISOString(),
+      timestamp: new Date(
+        parseInt(data.taken_at_timestamp + '000')
+      ).toISOString(),
       footer: { text: 'Instagram' },
-    };
+    }
   }
 
   if (via === 'btch-downloader' && response.platform === 'tiktok') {
@@ -195,8 +218,8 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.author_unique_id}` },
       description: data.title,
       footer: { text: 'Tiktok' },
-    };
+    }
   }
 
-  return null;
-};
+  return null
+}

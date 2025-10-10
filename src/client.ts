@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js'
 
 export const botClient = new Client({
   intents: [
@@ -7,4 +7,4 @@ export const botClient = new Client({
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.MessageContent, // REQUIRED TO READ MESSAGE CONTENT
   ],
-});
+})

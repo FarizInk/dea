@@ -1,3 +1,3 @@
-import { deployCommands } from '../deploy-commands';
+import { deployCommands } from '../deploy-commands'
 
-await deployCommands({ guildId: null });
+await deployCommands({ guildId: null })
