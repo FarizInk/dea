@@ -6,7 +6,9 @@ import {
 } from 'discord.js'
 import { config } from './config'
 import { commands } from './commands'
-import { deployCommands, kebabToCamel, removeCacheFiles } from './utils/utils'
+import { deployCommands } from './deploy-commands'
+import { kebabToCamel } from './utils'
+import { removeCacheFiles } from './utils'
 import {
   actionWhenFoundUrl,
   handleMessageConvertCurrency,

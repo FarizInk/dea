@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { downloadFile } from './utils'
+import { downloadFile } from '../utils'
 import { generateEmbed } from './parser'
 import { allowedUrls } from '../config'
 import * as fs from 'fs'

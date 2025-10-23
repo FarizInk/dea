@@ -5,7 +5,7 @@
   "scripts": {
     "start": "bun src/index.ts",
     "dev": "bun --watch src/index.ts",
-    "deploy:commands": "bun src/scripts/deploy-commands.ts",
+    "deploy:commands": "bun src/deploy-commands.ts",
     "check:lint-format": "bun src/scripts/check-lint-format.ts",
     "format": "bun src/scripts/format.ts",
     "lint": "eslint src --ext .ts",

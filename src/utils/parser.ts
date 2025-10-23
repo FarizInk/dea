@@ -1,12 +1,14 @@
 import { EmbedBuilder } from 'discord.js'
-import type { FxTwitterResponse } from '../types/fxtwitter'
-import type { InstagramGraphQLResponse } from '../types/instagram-graphql'
-import type { Response } from '../types/response'
-import type { VxTwitterResponse } from '../types/vxtwitter'
-import type { InstagramStoryClientResponse } from '../types/instagram-story-client'
-import type { TikTokParserResponse } from '../types/tiktok'
-import type { ThreadsGraphQLResponse } from '../types/threads-graphql'
-import type { BskxResponse } from '../types/bluesky'
+import type {
+  FxTwitterResponse,
+  InstagramGraphQLResponse,
+  Response,
+  VxTwitterResponse,
+  InstagramStoryClientResponse,
+  TikTokParserResponse,
+  ThreadsGraphQLResponse,
+  BskxResponse,
+} from '../types'
 
 export function generateEmbed(response: Response): EmbedBuilder | null {
   const { metadata, data }: Response = response

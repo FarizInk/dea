@@ -223,3 +223,33 @@ export const getEmbed = (response: ResponseData) => {
 
   return null
 }
+
+export function kebabToCamel(str: string) {
+  return str.replace(/-(\w)/g, (_, c) => c.toUpperCase())
+}
+
+export function isImageOrVideo(filename: string) {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+  const videoExtensions = [
+    '.mp4',
+    '.avi',
+    '.mov',
+    '.wmv',
+    '.flv',
+    '.webm',
+    '.mkv',
+  ]
+
+  const ext = filename.toLowerCase().split('.').pop()
+
+  if (imageExtensions.includes(`.${ext}`)) return 'image'
+  if (videoExtensions.includes(`.${ext}`)) return 'video'
+  return 'unknown'
+}
+
+export function removeEnding(str: string, ending: string) {
+  if (ending !== '' && str.endsWith(ending)) {
+    return str.slice(0, -ending.length)
+  }
+  return str
+}

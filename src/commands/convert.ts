@@ -6,7 +6,7 @@ import {
   ChatInputCommandInteraction,
 } from 'discord.js'
 import { convertCurrency } from '../dea'
-import { removeEnding } from '../utils/utils'
+import { removeEnding } from '../utils'
 
 export const data = new SlashCommandBuilder()
   .setName('convert')
