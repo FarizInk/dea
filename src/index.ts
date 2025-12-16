@@ -95,7 +95,7 @@ client.on('messageCreate', async (message: Message) => {
       await handleMessageLink(message, message.content)
     }
   } else {
-    await actionWhenFoundUrl(message)
+    // await actionWhenFoundUrl(message)
   }
 
   // message from master
