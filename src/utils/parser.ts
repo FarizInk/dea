@@ -10,6 +10,47 @@ import type {
   BskxResponse,
 } from '../types'
 
+function createValidTimestamp(timeInput?: any): Date | null {
+  if (!timeInput) return null
+
+  try {
+    let timestamp = timeInput
+
+    // If it's a number, determine if it's in seconds or milliseconds
+    if (typeof timestamp === 'number') {
+      // If timestamp is larger than year 2025 in seconds, it's likely in milliseconds
+      // 2025-01-01 in seconds = 1735689600
+      // 2025-01-01 in milliseconds = 1735689600000
+      if (timestamp > 1735689600000) {
+        // Already in milliseconds, no conversion needed
+      } else if (timestamp > 1735689600) {
+        // In seconds, convert to milliseconds
+        timestamp = timestamp * 1000
+      } else {
+        // Too old, likely invalid
+        console.warn('Timestamp too old:', timeInput)
+        return null
+      }
+    }
+
+    const date = new Date(timestamp)
+    // Check if the date is valid and reasonable (not too far in the future or past)
+    const now = new Date()
+    const minDate = new Date('2000-01-01')
+    const maxDate = new Date(now.getFullYear() + 1, 0, 1) // Next year
+
+    if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
+      console.warn('Invalid timestamp detected:', timeInput, '->', date.toISOString())
+      return null
+    }
+
+    return date
+  } catch (error) {
+    console.warn('Error parsing timestamp:', timeInput, error)
+    return null
+  }
+}
+
 export function generateEmbed(response: Response): EmbedBuilder | null {
   const { metadata, data }: Response = response
   if (!data) return null
@@ -25,7 +66,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setAuthor({ name: `@${item.author.screen_name}` })
         .setDescription(item.text)
         .setThumbnail(item.author.avatar_url)
-        .setTimestamp(new Date(item.created_at))
+        .setTimestamp(createValidTimestamp(item.created_at))
         .setFooter({ text: 'X / Twitter' })
     } else if (metadata.provider_data === 'vxtwitter') {
       const item = data as VxTwitterResponse
@@ -37,9 +78,9 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setAuthor({ name: `@${item.user_screen_name}` })
         .setDescription(item.text)
         .setThumbnail(item.user_profile_image_url.replace('_normal', ''))
-        .setTimestamp(new Date(item.date))
+        .setTimestamp(createValidTimestamp(item.date))
         .setFooter({ text: 'X / Twitter' })
-    } else if (metadata.provider_data === 'instagram-graphql') {
+    } else if (metadata.provider_data === 'instagram-embed') {
       const item = data as InstagramGraphQLResponse
 
       return new EmbedBuilder()
@@ -57,7 +98,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setThumbnail(item.owner.profile_pic_url)
         .setTimestamp(
           item.taken_at_timestamp
-            ? new Date(parseInt(item.taken_at_timestamp + '000'))
+            ? createValidTimestamp(item.taken_at_timestamp)
             : null
         )
         .setFooter({ text: 'Instagram' })
@@ -73,7 +114,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setAuthor({ name: `@${item.user.username}` })
         .setThumbnail(item.user.profile_pic_url)
         .setTimestamp(
-          item.taken_at ? new Date(parseInt(item.taken_at + '000')) : null
+          item.taken_at ? createValidTimestamp(item.taken_at * 1000) : null
         )
         .setFooter({ text: 'Instagram Story' })
     } else if (metadata.provider_data === 'tiktok-parser') {
@@ -87,7 +128,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setDescription(item.desc === '' ? null : (item.desc ?? null))
         .setThumbnail(item.author.avatarMedium)
         .setTimestamp(
-          item.createTime ? new Date(parseInt(item.createTime + '000')) : null
+          item.createTime ? createValidTimestamp(parseInt(item.createTime) * 1000) : null
         )
         .setFooter({ text: 'TikTok' })
     } else if (metadata.provider_data === 'threads-graphql') {
@@ -103,7 +144,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         .setDescription(item.caption.text)
         .setThumbnail(item.user.profile_pic_url)
         .setTimestamp(
-          item.taken_at ? new Date(parseInt(item.taken_at + '000')) : null
+          item.taken_at ? createValidTimestamp(item.taken_at * 1000) : null
         )
         .setFooter({ text: 'Threads' })
     } else if (metadata.provider_data === 'bskx') {
@@ -119,7 +160,7 @@ export function generateEmbed(response: Response): EmbedBuilder | null {
         )
         .setThumbnail(item.author.avatar ?? null)
         .setTimestamp(
-          item.record.createdAt ? new Date(item.record.createdAt) : null
+          item.record.createdAt ? createValidTimestamp(item.record.createdAt) : null
         )
         .setFooter({ text: 'Bluesky' })
     }

@@ -167,7 +167,21 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.user_screen_name}` },
       description: data.text,
       thumbnail: { url: data.user_profile_image_url.replace('_normal', '') },
-      timestamp: new Date(data.date).toISOString(),
+      timestamp: (() => {
+        try {
+          const date = new Date(data.date)
+          const now = new Date()
+          const minDate = new Date('2000-01-01')
+          const maxDate = new Date(now.getFullYear() + 1, 0, 1)
+
+          if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
+            return null
+          }
+          return date.toISOString()
+        } catch {
+          return null
+        }
+      })(),
       footer: { text: 'X / Twitter' },
     }
   }
@@ -182,7 +196,21 @@ export const getEmbed = (response: ResponseData) => {
       description: data.caption?.text ?? null,
       thumbnail: { url: data.user.hd_profile_pic_url_info?.url ?? null },
       timestamp: data.taken_at
-        ? new Date(parseInt(data.taken_at + '000')).toISOString()
+        ? (() => {
+            try {
+              const date = new Date(parseInt(data.taken_at) * 1000)
+              const now = new Date()
+              const minDate = new Date('2000-01-01')
+              const maxDate = new Date(now.getFullYear() + 1, 0, 1)
+
+              if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
+                return null
+              }
+              return date.toISOString()
+            } catch {
+              return null
+            }
+          })()
         : null,
       footer: { text: 'Instagram' },
       files: [],
@@ -203,9 +231,22 @@ export const getEmbed = (response: ResponseData) => {
       author: { name: `@${data.owner.username}` },
       description: data.data_to_caption?.edges[0]?.node?.text ?? null,
       thumbnail: { url: data.owner.profile_pic_url },
-      timestamp: new Date(
-        parseInt(data.taken_at_timestamp + '000')
-      ).toISOString(),
+      timestamp: (() => {
+        try {
+          // Instagram timestamp is already in milliseconds
+          const date = new Date(parseInt(data.taken_at_timestamp))
+          const now = new Date()
+          const minDate = new Date('2000-01-01')
+          const maxDate = new Date(now.getFullYear() + 1, 0, 1)
+
+          if (isNaN(date.getTime()) || date < minDate || date > maxDate) {
+            return null
+          }
+          return date.toISOString()
+        } catch {
+          return null
+        }
+      })(),
       footer: { text: 'Instagram' },
     }
   }
